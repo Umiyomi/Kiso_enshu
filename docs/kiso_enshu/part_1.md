@@ -11,7 +11,7 @@ Google ColabでPythonを動かしながら、アンケート調査のデータ�
 
 ### 進め方
 
-GitHubでこのページを見ながら、コードをGoogle Colab（https://colab.research.google.com/notebook?hl=ja）のコードセルにコピーして実行します。
+GitHubでこのページを見ながら、コードを[Google Colab](https://colab.research.google.com/notebook?hl=ja)のコードセルにコピーして実行します。
 
 演習では、指示に従って**自分でコードを入力**してください。
 
@@ -50,6 +50,18 @@ print("こんにちは")
 商品Aのアンケート
 30
 ```
+
+<details>
+<summary>解答例・実行結果（自分で入力してから確認しよう）</summary>
+
+解答例
+
+```python
+print("商品Aのアンケート")
+print(30)
+```
+
+</details>
 
 ---
 
@@ -135,8 +147,6 @@ print(want_to_buy)
 
 同じ変数に別の値を代入すると、その後は新しい値が使用されます。
 
-これを**再代入**といいます。
-
 ### 1.4 値には種類がある
 
 Pythonでは、文字や数値など、さまざまな種類のデータを扱えます。
@@ -176,9 +186,23 @@ print(type(respondents))
 
 例えば、`"30"`は文字列、`30`は整数です。
 
+```python
+respondents = "30"
+
+print(type(respondents))
+```
+
+実行結果：
+
+```text
+<class 'str'>
+```
+
 データ型が異なると、実行できる処理も異なるため、コードを理解するうえで重要です。
 
 ### 1.5 演習1：自分で書いてみよう
+
+Google Colabで、演習1-1から順番にコードを入力・実行してください。
 
 **演習1-1：変数への代入**
 
@@ -192,35 +216,71 @@ print(type(respondents))
 - `respondents`
 - `want_to_buy`
 
-**演習1-2：変数を使った計算**
-
-演習1-1で作成した2つの変数を使用して、購入希望者の割合（%）を計算してください。
-
-計算結果は`purchase_rate`という変数に保存し、表示（print）してください。
-
-**演習1-3：変数への再代入**
-
-購入希望者数が28人から32人に増えたとします。
-
-`want_to_buy`の値を変更し、購入希望者の割合をもう一度計算してください。
-
 <details>
-<summary>解答例（自分で入力してから確認しよう）</summary>
+<summary>解答例・実行結果（クリックして確認）</summary>
+
+**解答例**
 
 ```python
-# 演習1-1
 respondents = 40
 want_to_buy = 28
 
 print(respondents)
 print(want_to_buy)
+```
 
-# 演習1-2
+**実行結果**
+
+```text
+40
+28
+```
+
+</details>
+
+---
+
+#### 演習1-2：変数を使った計算
+
+演習1-1で作成した2つの変数を使用して、購入希望者の割合（%）を計算してください。
+
+計算結果は`purchase_rate`という変数に保存し、表示（print）してください。
+
+<details>
+<summary>解答例・実行結果（クリックして確認）</summary>
+
+**解答例**
+
+```python
 purchase_rate = want_to_buy / respondents * 100
 
 print(purchase_rate)
+```
 
-# 演習1-3
+**実行結果**
+
+```text
+70.0
+```
+
+</details>
+
+---
+
+#### 演習1-3：変数への再代入
+
+購入希望者数が28人から32人に増えたとします。
+
+`want_to_buy`の値を変更し、購入希望者の割合をもう一度計算してください。
+
+計算結果を表示（print）してください。
+
+<details>
+<summary>解答例・実行結果（クリックして確認）</summary>
+
+**解答例**
+
+```python
 want_to_buy = 32
 
 purchase_rate = want_to_buy / respondents * 100
@@ -228,16 +288,15 @@ purchase_rate = want_to_buy / respondents * 100
 print(purchase_rate)
 ```
 
-実行結果
+**実行結果**
 
 ```text
-40
-28
-70.0
 80.0
 ```
 
 </details>
+
+---
 
 ### 1.6 Paizaの復習課題
 
@@ -417,6 +476,8 @@ print(average_score)
 
 ### 2.7 演習2：自分で書いてみよう
 
+Google Colabで、演習2-1から順番にコードを入力・実行してください。
+
 **演習2-1：リストの作成**
 
 5人の満足度が次のように得られました。
@@ -427,45 +488,119 @@ print(average_score)
 
 これらを`scores`というリストに保存し、表示（print）してください。
 
-**演習2-2：要素の取り出し**
-
-3人目の満足度を表示（print）してください。
-
-**演習2-3：要素の変更**
-
-2人目の満足度を4から5に変更してください。
-
-**演習2-4：要素の追加**
-
-新しい回答者の満足度`3`をリストの末尾に追加してください。
-
-追加後のリスト全体を表示（print）してください。
-
-**演習2-5：平均値の計算**
-
-変更・追加後の回答数と平均満足度を表示（print）してください。
-
 <details>
-<summary>解答例（自分で入力してから確認しよう）</summary>
+<summary>解答例・実行結果（クリックして確認）</summary>
+
+**解答例**
 
 ```python
-# 演習2-1
 scores = [3, 4, 5, 2, 4]
 
 print(scores)
+```
 
-# 演習2-2
+**実行結果**
+
+```text
+[3, 4, 5, 2, 4]
+```
+
+</details>
+
+---
+
+#### 演習2-2：要素の取り出し
+
+演習2-1で作成したリストから、3人目の満足度を取り出して表示（print）してください。
+
+<details>
+<summary>解答例・実行結果（クリックして確認）</summary>
+
+**解答例**
+
+```python
 print(scores[2])
+```
 
-# 演習2-3
+**実行結果**
+
+```text
+5
+```
+
+</details>
+
+---
+
+#### 演習2-3：要素の変更
+
+演習2-1で作成したリストについて、2人目の満足度を4から5に変更してください。
+
+変更後のリスト全体を表示（print）してください。
+
+<details>
+<summary>解答例・実行結果（クリックして確認）</summary>
+
+**解答例**
+
+```python
 scores[1] = 5
 
-# 演習2-4
+print(scores)
+```
+
+**実行結果**
+
+```text
+[3, 5, 5, 2, 4]
+```
+
+</details>
+
+---
+
+#### 演習2-4：要素の追加
+
+演習2-3で変更したリストに、新しい回答者の満足度`3`を追加してください。
+
+追加後のリスト全体を表示（print）してください。
+
+<details>
+<summary>解答例・実行結果（クリックして確認）</summary>
+
+**解答例**
+
+```python
 scores.append(3)
 
 print(scores)
+```
 
-# 演習2-5
+**実行結果**
+
+```text
+[3, 5, 5, 2, 4, 3]
+```
+
+</details>
+
+---
+
+#### 演習2-5：平均値の計算
+
+演習2-4で新しい回答を追加したリストを使用して、次の値を表示（print）してください。
+
+1. 回答者数
+2. 平均満足度
+
+平均満足度は`average_score`という変数に保存してください。
+
+<details>
+<summary>解答例・実行結果（クリックして確認）</summary>
+
+**解答例**
+
+```python
 print(len(scores))
 
 average_score = sum(scores) / len(scores)
@@ -473,18 +608,18 @@ average_score = sum(scores) / len(scores)
 print(average_score)
 ```
 
-実行結果
+**実行結果**
 
 ```text
-[3, 4, 5, 2, 4]
-5
-[3, 5, 5, 2, 4]
-[3, 5, 5, 2, 4, 3]
 6
 3.6666666666666665
 ```
 
+※Pythonでは、小数の計算結果が長く表示される場合があります。
+
 </details>
+
+---
 
 ### 2.8 Paizaの復習課題
 
@@ -508,7 +643,7 @@ print(average_score)
 
 ---
 
-## 3. 辞書（dict）：項目名と値を対応させる（約15分）
+## 3. 辞書（dict）：項目名と値を対応させる
 
 ### 3.1 辞書とは
 
@@ -530,6 +665,12 @@ respondent = {
 }
 
 print(respondent)
+```
+
+実行結果
+
+```text
+{'id': 1, 'age': 21, 'satisfaction': 4}
 ```
 
 この例では、次のようにデータが保存されています。
@@ -574,6 +715,12 @@ scores = [4, 5, 3]
 print(scores[0])
 ```
 
+実行結果
+
+```text
+4
+```
+
 リストでは、インデックス（位置）を指定して値を取り出します。
 
 **辞書の場合**
@@ -582,6 +729,12 @@ print(scores[0])
 respondent = {"age": 21, "satisfaction": 4}
 
 print(respondent["age"])
+```
+
+実行結果
+
+```text
+21
 ```
 
 辞書では、キーを指定して値を取り出します。
@@ -602,6 +755,12 @@ respondent = {
 respondent["satisfaction"] = 5
 
 print(respondent)
+```
+
+実行結果
+
+```text
+{'id': 1, 'age': 21, 'satisfaction': 5}
 ```
 
 ### 3.4 辞書に新しい項目を追加する
@@ -632,6 +791,8 @@ print(respondent)
 
 ### 3.5 演習3：自分で書いてみよう
 
+Google Colabで、演習3-1から順番にコードを入力・実行してください。
+
 **演習3-1：辞書の作成**
 
 次の回答者情報を`respondent`という辞書に保存してください。
@@ -643,29 +804,14 @@ print(respondent)
 | satisfaction | 5 |
 
 キーは文字列として作成してください。
-
-**演習3-2：値の取り出し**
-
-`satisfaction`の値を取り出して表示（print）してください。
-
-**演習3-3：値の変更**
-
-`satisfaction`の値を5から4に変更してください。
-
-**演習3-4：項目の追加**
-
-次の項目を追加してください。
-
-- キー：`purchase_intention`
-- 値：`"あり"`
-
-最後に、辞書全体を表示（print）してください。
+作成した辞書全体を表示（print）してください。
 
 <details>
-<summary>解答例（自分で入力してから確認しよう）</summary>
+<summary>解答例・実行結果（クリックして確認）</summary>
+
+**解答例**
 
 ```python
-# 演習3-1
 respondent = {
     "id": 2,
     "age": 22,
@@ -673,28 +819,91 @@ respondent = {
 }
 
 print(respondent)
+```
 
+**実行結果**
 
-# 演習3-2
+```text
+{'id': 2, 'age': 22, 'satisfaction': 5}
+```
+
+</details>
+
+---
+
+#### 演習3-2：値の取り出し
+
+演習3-1で作成した辞書から、`satisfaction`の値を取り出して表示（print）してください。
+
+<details>
+<summary>解答例・実行結果（クリックして確認）</summary>
+
+**解答例**
+
+```python
 print(respondent["satisfaction"])
+```
 
-# 演習3-3
+**実行結果**
+
+```text
+5
+```
+
+</details>
+
+---
+
+#### 演習3-3：値の変更
+
+演習3-1で作成した辞書について、`satisfaction`の値を5から4に変更してください。
+
+変更後の辞書全体を表示（print）してください。
+
+<details>
+<summary>解答例・実行結果（クリックして確認）</summary>
+
+**解答例**
+
+```python
 respondent["satisfaction"] = 4
 
 print(respondent)
+```
 
-# 演習3-4
+**実行結果**
+
+```text
+{'id': 2, 'age': 22, 'satisfaction': 4}
+```
+
+</details>
+
+---
+
+#### 演習3-4：項目の追加
+
+演習3-3で変更した辞書に、次の項目を追加してください。
+
+- キー：`purchase_intention`
+- 値：`"あり"`
+
+追加後の辞書全体を表示（print）してください。
+
+<details>
+<summary>解答例・実行結果（クリックして確認）</summary>
+
+**解答例**
+
+```python
 respondent["purchase_intention"] = "あり"
 
 print(respondent)
 ```
 
-実行結果
+**実行結果**
 
 ```text
-{'id': 2, 'age': 22, 'satisfaction': 5}
-5
-{'id': 2, 'age': 22, 'satisfaction': 4}
 {'id': 2, 'age': 22, 'satisfaction': 4, 'purchase_intention': 'あり'}
 ```
 
