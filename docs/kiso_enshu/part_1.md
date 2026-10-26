@@ -8,25 +8,16 @@ Google ColabでPythonを動かしながら、アンケート調査のデータ�
 - 変数に値を保存し、計算に使える。
 - リスト（`list`）で複数の回答をまとめ、取り出し・変更・追加ができる。
 - 辞書（`dict`）で項目名と値を対応させ、必要な情報を取り出せる。
-- 自分で短いコードを書き、結果を確かめられる。
 
 ### 進め方
 
-GitHubでこのページを見ながら、コードをGoogle Colabのコードセルにコピーして実行します。
+GitHubでこのページを見ながら、コードをGoogle Colab（https://colab.research.google.com/notebook?hl=ja）のコードセルにコピーして実行します。
 
 演習では、指示に従って**自分でコードを入力**してください。
 
-各コード例は、基本的に別のセルでも実行できるようにしています。
-
-エラーが出たら、スペル、括弧、引用符などを確認しましょう。
-
-> この教材のアンケート結果は、すべて練習用の架空データです。
->
-> 今回は`if`、`for`、関数の定義、CSVの読み込み、グラフ作成は扱いません。
-
 ---
 
-## まずは動かしてみる（約5分）
+## まずは動かしてみる
 
 以下のコードをGoogle Colabにコピーして実行してください。
 
@@ -62,7 +53,7 @@ print("こんにちは")
 
 ---
 
-## 1. 変数：データに名前を付ける（約15分）
+## 1. 変数：データに名前を付ける
 
 ### 1.1 変数とは
 
@@ -237,7 +228,7 @@ purchase_rate = want_to_buy / respondents * 100
 print(purchase_rate)
 ```
 
-実行結果：
+実行結果
 
 ```text
 40
@@ -262,7 +253,7 @@ print(purchase_rate)
 
 ---
 
-## 2. リスト（list）：複数の回答をまとめる（約15分）
+## 2. リスト（list）：複数の回答をまとめる
 
 ### 2.1 リストとは
 
@@ -482,6 +473,17 @@ average_score = sum(scores) / len(scores)
 print(average_score)
 ```
 
+実行結果
+
+```text
+[3, 4, 5, 2, 4]
+5
+[3, 5, 5, 2, 4]
+[3, 5, 5, 2, 4, 3]
+6
+3.6666666666666665
+```
+
 </details>
 
 ### 2.8 Paizaの復習課題
@@ -670,16 +672,30 @@ respondent = {
     "satisfaction": 5
 }
 
+print(respondent)
+
+
 # 演習3-2
 print(respondent["satisfaction"])
 
 # 演習3-3
 respondent["satisfaction"] = 4
 
+print(respondent)
+
 # 演習3-4
 respondent["purchase_intention"] = "あり"
 
 print(respondent)
+```
+
+実行結果
+
+```text
+{'id': 2, 'age': 22, 'satisfaction': 5}
+5
+{'id': 2, 'age': 22, 'satisfaction': 4}
+{'id': 2, 'age': 22, 'satisfaction': 4, 'purchase_intention': 'あり'}
 ```
 
 </details>
@@ -700,11 +716,9 @@ print(respondent)
 - Chapter 4：辞書のkeyにできる型
 - Chapter 5：辞書の長さを取得（len）
 
-辞書の削除・キーや値の一覧取得・ソート・内包表記については、今回の基礎演習では扱いません。
-
 ---
 
-## 4. 総合演習：アンケートデータを整理する（約10分）
+## 4. 総合演習：アンケートデータを整理する
 
 ここまでに学んだ、変数・リスト・辞書を組み合わせてみましょう。
 
@@ -776,6 +790,19 @@ scores = survey["scores"]
 average_score = sum(scores) / len(scores)
 
 print(average_score)
+
+# 変更後の辞書全体を確認
+print(survey)
+```
+
+実行結果
+
+```text
+商品A
+3
+4.2
+3.8333333333333335
+{'product': '商品A', 'scores': [4, 5, 3, 4, 5, 2]}
 ```
 
 </details>
@@ -812,8 +839,6 @@ survey = {
 - 辞書のどのキーを指定しているのか
 
 を確認すると、処理の内容を理解しやすくなります。
-
-また、AIが作成したコードを使用する場合も、変数やデータの構造を理解することで、コードの動作を確認したり、必要な部分を変更したりしやすくなります。
 
 ---
 
