@@ -1,114 +1,196 @@
 # Part 2 if・for・関数
 
-Google ColabでPythonを実際に動かしながら、**条件分岐（if）・繰り返し（for）・関数（def）**を学びます。
+# Pythonプログラミング入門：条件分岐・繰り返し・関数
 
-コードをセルにコピーして実行し、表示された結果を確認しましょう。次に、数字や文字を変更して結果がどう変わるか試してみましょう。
+Google ColabでPythonを動かしながら、商品のアンケート調査データを集計・分析する流れで、**条件分岐（if）・繰り返し（for）・関数（def）**を学びます。
 
 ## 今回の目標
 
-- 変数に入れた値を利用できる。
-- `if` を使って、条件によって処理を変えられる。
-- `for` を使って、同じ処理を繰り返せる。
-- `def` を使って、処理を関数にまとめて呼び出せる。
-- `if`・`for`・関数を組み合わせ、簡単な観測データを処理できる。
+- Part 1で学んだ**変数**を使い、購入希望率などの集計に再利用できる。
+- **`if`** を使い、満足度などの値に応じて処理を分けられる。
+- **`for`** を使い、複数の回答を順番に処理できる。
+- **`def`** を使い、判定や集計の処理を関数にまとめて呼び出せる。
+- **`if`・`for`・関数を組み合わせ**、Part 1の`survey`データを処理できる。
 
-> **実行方法**：以下のコードをGoogle Colabのコードセルに貼り付け、上から順に実行します。`#` から始まる行は説明用のコメントです。
+### 進め方
+
+GitHubでこのページを見ながら、コードを[Google Colab](https://colab.research.google.com/notebook?hl=ja)のコードセルにコピーして実行します。
+
+演習では、指示に従って**自分でコードを入力**してください。
+
+Part 1の総合演習で用いた`survey`（3商品×各5人分の満足度）を、本パートでもそのまま利用します。
 
 ---
 
 ## 1. 変数を復習する
 
-変数は、数字や文字などの値に名前を付けて利用する仕組みです。
+Part 1では、回答者数や購入希望者数に名前を付け、購入希望率を計算しました。
 
 ```python
-water_temp = 20
-place = "若狭湾"
+respondents = 40
+want_to_buy = 28
 
-print(place)
-print(water_temp)
+print(respondents)
+print(want_to_buy)
 
-# 変数の値を変更する
-water_temp = 22
-print(water_temp)
+purchase_rate = want_to_buy / respondents * 100
+
+print(purchase_rate)
 ```
 
-`=` は、右側の値を左側の変数に代入する記号です。数学の「等しい」とは意味が異なります。
+実行結果：
+
+```text
+40
+28
+70.0
+```
+
+`=`は「右側の値を左側の変数に代入する」という意味です。数学の「等しい」とは異なります。
+
+同じ変数に別の値を代入すると、その後は新しい値が使用されます。
+
+```python
+want_to_buy = 32
+
+purchase_rate = want_to_buy / respondents * 100
+
+print(purchase_rate)
+```
+
+実行結果：
+
+```text
+80.0
+```
 
 ### やってみよう
 
-`water_temp` を `18` に変更して、出力がどう変わるか確かめましょう。
+`want_to_buy`を`25`に変更し、購入希望率の表示がどう変わるか確かめましょう。
 
-### Paiza演習
+### Paizaの復習課題
 
 [新・Python入門編4：変数を学習しよう](https://paiza.jp/works/python/new-primer/python-new-primer-4)
+
+今回の内容に対応するChapterは以下の通りです。
 
 - Chapter 1：変数とはなにか
 - Chapter 2：変数への代入
 - Chapter 3：変数への再代入
 
+**全3チャプターを復習課題とします。**
+
 ---
 
 ## 2. if文：条件によって処理を変える
 
-`if` は、**条件を満たした場合だけ特定の処理を実行する**構文です。
+### なぜ必要か
+
+商品Aのアンケートで、1人分の満足度が4点（5点満点）だったとします。
+
+「4点以上なら高評価として記録する」といった**条件に応じた処理**を、プログラムで表現するには`if`を使用します。
+
+### 使い方
+
+`if`は、**条件を満たした場合だけ**字下げ（インデント）した処理を実行する構文です。
 
 ```python
-water_temp = 22
+satisfaction = 4
 
-if water_temp >= 20:
-    print("水温は20℃以上です")
+if satisfaction >= 4:
+    print("満足度は4点以上です（高評価）")
 ```
 
-`water_temp >= 20` は「水温が20以上」という条件です。条件が成り立つときだけ、字下げ（インデント）した `print()` が実行されます。
+`satisfaction >= 4`は「満足度が4以上」という条件です。条件が成り立つときだけ、`print()`が実行されます。
 
-Pythonでは、`if` の行末に `:` を書き、その下の処理を通常 **半角スペース4個** 分字下げします。
+Pythonでは、`if`の行末に`:`を書き、その下の処理を通常**半角スペース4個**分字下げします。
 
-### 条件が成り立たない場合にも処理する
+条件が成り立たない場合にも別の処理を行うには、`else`を使用します。
 
 ```python
-water_temp = 18
+satisfaction = 3
 
-if water_temp >= 20:
-    print("水温は20℃以上です")
+if satisfaction >= 4:
+    print("満足度は4点以上です（高評価）")
 else:
-    print("水温は20℃未満です")
+    print("満足度は4点未満です")
 ```
 
-`else` は、`if` の条件が成り立たない場合の処理です。
-
-### 複数の条件に分ける
+3段階以上に分ける場合は、`elif`を使用します。
 
 ```python
-water_temp = 22
+satisfaction = 3
 
-if water_temp >= 25:
-    print("水温は25℃以上です")
-elif water_temp >= 20:
-    print("水温は20℃以上25℃未満です")
+if satisfaction >= 4:
+    print("高評価（4点以上）")
+elif satisfaction >= 3:
+    print("普通（3点）")
 else:
-    print("水温は20℃未満です")
+    print("低評価（2点以下）")
 ```
 
-`elif` は、上の条件が成り立たなかったときに、別の条件を確認します。複数の条件に当てはまる場合でも、上から判定し、最初に成立した分岐だけ実行します。
+`elif`は、上の条件が成り立たなかったときに、別の条件を確認します。複数の条件に当てはまる場合でも、上から判定し、最初に成立した分岐だけ実行します。
 
 | 記号 | 意味 | 例 |
-| --- | --- | --- |
-| `==` | 等しい | `water_temp == 20` |
-| `!=` | 等しくない | `water_temp != 20` |
-| `>` | より大きい | `water_temp > 20` |
-| `<` | より小さい | `water_temp < 20` |
-| `>=` | 以上 | `water_temp >= 20` |
-| `<=` | 以下 | `water_temp <= 20` |
+|---|---|---|
+| `==` | 等しい | `satisfaction == 4` |
+| `!=` | 等しくない | `satisfaction != 4` |
+| `>` | より大きい | `satisfaction > 3` |
+| `<` | より小さい | `satisfaction < 3` |
+| `>=` | 以上 | `satisfaction >= 4` |
+| `<=` | 以下 | `satisfaction <= 2` |
 
-> **注意**：値を代入するのは `=`、値が等しいかを比較するのは `==` です。
+値を代入するのは`=`、値が等しいかを比較するのは`==`です。
 
-### やってみよう
+### 演習1：自分で書いてみよう
 
-`water_temp` を `18`、`22`、`27` に変更し、表示がどう変わるか確かめましょう。
+Google Colabで、次の手順に従ってコードを入力・実行してください。
 
-### Paiza演習
+1. 満足度`4`を`satisfaction`に代入する。
+2. `satisfaction >= 4`のとき「高評価」、そうでないとき「4点未満」と表示する（`if`と`else`）。
+3. `satisfaction`を`2`、`3`、`5`に変更し、表示がどう変わるか確認する。
+
+<details>
+<summary>解答例・実行結果（クリックして確認）</summary>
+
+**解答例**
+
+```python
+satisfaction = 4
+
+if satisfaction >= 4:
+    print("高評価")
+else:
+    print("4点未満")
+
+satisfaction = 2
+if satisfaction >= 4:
+    print("高評価")
+else:
+    print("4点未満")
+
+satisfaction = 5
+if satisfaction >= 4:
+    print("高評価")
+else:
+    print("4点未満")
+```
+
+**実行結果（例）**
+
+```text
+高評価
+4点未満
+高評価
+```
+
+</details>
+
+### Paizaの復習課題
 
 [新・Python入門編10：条件分岐を学習しよう](https://paiza.jp/works/python/new-primer/python-new-primer-10)
+
+**今回の復習課題**
 
 - Chapter 1：if文とはなにか
 - Chapter 2：if文のルール
@@ -121,23 +203,31 @@ else:
 
 ## 3. for文：同じ処理を繰り返す
 
-複数のデータを扱うとき、同じ命令を何回も書くのは大変です。`for` を使うと、処理を繰り返せます。
+### なぜ必要か
 
-### 決まった回数だけ繰り返す
+商品Aについて、5人分の満足度 `[4, 5, 3, 4, 5]` を1件ずつ確認したいとします。
+
+同じ`print()`や`if`を5回書くのは手間がかかり、回答者が増えるほど現実的ではありません。
+
+**リストの要素を順番に取り出し、同じ処理を繰り返す**ために`for`を使用します。
+
+### 使い方
+
+決まった回数だけ繰り返す場合は、`range()`と組み合わせます。
 
 ```python
 for i in range(3):
-    print("観測データを確認します")
+    print("回答を確認します")
 ```
 
-`range(3)` は `0`、`1`、`2` という3つの整数を順番に生成します。
+`range(3)`は`0`、`1`、`2`という3つの整数を順番に生成します。
 
 ```python
 for i in range(3):
     print(i)
 ```
 
-**出力**
+実行結果：
 
 ```text
 0
@@ -145,198 +235,346 @@ for i in range(3):
 2
 ```
 
-### 複数のデータを順番に処理する
-
-`[]` で囲んだ複数の値を**リスト**と呼びます。
+アンケートの満足度リストを順番に処理する例は次のとおりです。
 
 ```python
-water_temps = [18, 22, 25]
+scores = [4, 5, 3, 4, 5]
 
-for temp in water_temps:
-    print(temp)
+for score in scores:
+    print(score)
 ```
 
-`temp` にリストの値が1つずつ入るため、3回 `print()` が実行されます。
+`score`にリストの値が1つずつ入るため、5回`print()`が実行されます。
 
-### for文とif文を組み合わせる
+`for`と`if`を組み合わせると、**複数の満足度を順番に確認し、条件に応じて分類する**処理ができます。
 
 ```python
-water_temps = [18, 22, 25]
+scores = [4, 5, 3, 4, 5]
 
-for temp in water_temps:
-    if temp >= 20:
-        print(temp, "℃：20℃以上")
+for score in scores:
+    if score >= 4:
+        print(score, "点：高評価（4点以上）")
     else:
-        print(temp, "℃：20℃未満")
+        print(score, "点：4点未満")
 ```
 
-これで、**複数の観測値を順番に確認し、条件に応じて分類する**処理ができました。
+実行結果：
 
-### やってみよう
+```text
+4 点：高評価（4点以上）
+5 点：高評価（4点以上）
+3 点：4点未満
+4 点：高評価（4点以上）
+5 点：高評価（4点以上）
+```
 
-`water_temps` に `16` と `28` を追加し、5個のデータすべてが表示されることを確認しましょう。
+### 演習2：自分で書いてみよう
 
-### Paiza演習
+Google Colabで、次の手順に従ってコードを入力・実行してください。
+
+1. 満足度 `[3, 4, 5, 2, 4]` を`scores`に代入し、`for`で1件ずつ表示する。
+2. 上記と同じ`scores`について、4点以上なら「高評価」、未満なら「4点未満」と表示する（`for`と`if`）。
+3. リストに`1`と`5`を追加（`append`）し、2の分類表示を再度実行する。
+
+<details>
+<summary>解答例・実行結果（クリックして確認）</summary>
+
+**解答例**
+
+```python
+scores = [3, 4, 5, 2, 4]
+
+for score in scores:
+    print(score)
+
+for score in scores:
+    if score >= 4:
+        print(score, "点：高評価")
+    else:
+        print(score, "点：4点未満")
+
+scores.append(1)
+scores.append(5)
+
+for score in scores:
+    if score >= 4:
+        print(score, "点：高評価")
+    else:
+        print(score, "点：4点未満")
+```
+
+</details>
+
+### Paizaの復習課題
 
 [新・Python入門編13：for文を学習しよう](https://paiza.jp/works/python/new-primer/python-new-primer-13)
+
+**今回の復習課題**
 
 - Chapter 1：for文とはなにか
 - Chapter 2：for文のルール
 - Chapter 3：はじめてのfor文
 - Chapter 10：while文とfor文の比較
 
-> `break`、`continue`、二重ループなどは今回の必須範囲には含めません。
+`break`、`continue`、二重ループなどは、今回の基礎演習では扱いません。
 
 ---
 
 ## 4. 関数：一連の処理をまとめる
 
-処理が増えると、同じコードを何度も書いたり、どこで何をしているか分かりにくくなったりします。
+### なぜ必要か
 
-関数を定義すると、**複数の命令を1つの名前で呼び出せる**ようになります。
+「満足度が4点以上かどうか」を、商品ごと・回答者ごとに何度も判定する場合、同じ`if`のブロックを繰り返し書くことになります。
 
-### 関数を定義して呼び出す
+**判定の手順を1つの名前にまとめ、必要なときに呼び出す**ために関数（`def`）を使用します。
 
-```python
-# 関数を定義する
-def say_hello():
-    print("こんにちは")
-
-# 関数を呼び出す
-say_hello()
-say_hello()
-```
-
-`def` は関数を定義するためのキーワードです。関数は、定義しただけでは中の処理が実行されません。`say_hello()` のように呼び出すと実行されます。
-
-### 引数を使う
+### 使い方
 
 ```python
-def show_temperature(temp):
-    print("水温は", temp, "℃です")
+def show_product_name():
+    print("商品Aのアンケート")
 
-show_temperature(18)
-show_temperature(22)
+show_product_name()
+show_product_name()
 ```
 
-`temp` は**引数**です。呼び出すときに値を渡すことで、同じ関数を異なるデータに利用できます。
+`def`は関数を定義するためのキーワードです。関数は、定義しただけでは中の処理が実行されません。`show_product_name()`のように**呼び出す**と実行されます。
 
-### returnで結果を返す
+呼び出すときに値を渡す**引数**を使うと、同じ関数を異なるデータに利用できます。
 
 ```python
-def tashizan(a, b):
-    result = a + b
-    return result
+def show_satisfaction(score):
+    print("満足度は", score, "点です")
 
-answer = tashizan(100, 200)
-print(answer)
+show_satisfaction(4)
+show_satisfaction(5)
 ```
 
-`return` は、関数の処理結果を呼び出し元に返します。
+関数の処理結果を後の計算などに使うには、`return`で値を返します。
 
-`print()` は結果を画面に表示しますが、`return` は結果を後の計算などに利用できるよう返す点が異なります。
+```python
+def purchase_rate(want_to_buy, respondents):
+    rate = want_to_buy / respondents * 100
+    return rate
 
-### やってみよう
+rate_a = purchase_rate(28, 40)
+print(rate_a)
+```
 
-上の `tashizan()` を参考に、2つの数を掛け算する `kakezan(a, b)` を作成し、`kakezan(3, 5)` の答えを表示しましょう。
+実行結果：
 
-### Paiza演習
+```text
+70.0
+```
+
+`print()`は結果を画面に表示しますが、`return`は結果を変数に代入したり、別の計算に使ったりできる点が異なります。
+
+### 演習3：自分で書いてみよう
+
+Google Colabで、次の手順に従ってコードを入力・実行してください。
+
+1. 2つの数を掛け算する`kakezan(a, b)`を定義し、結果を`return`する。`kakezan(3, 5)`の結果を表示する。
+2. 満足度`score`を引数に取り、4点以上なら`"高評価"`、未満なら`"4点未満"`を`return`する`classify_score(score)`を定義する。
+3. `classify_score(3)`と`classify_score(5)`の戻り値をそれぞれ表示する。
+
+<details>
+<summary>解答例・実行結果（クリックして確認）</summary>
+
+**解答例**
+
+```python
+def kakezan(a, b):
+    return a * b
+
+print(kakezan(3, 5))
+
+def classify_score(score):
+    if score >= 4:
+        return "高評価"
+    else:
+        return "4点未満"
+
+print(classify_score(3))
+print(classify_score(5))
+```
+
+**実行結果**
+
+```text
+15
+4点未満
+高評価
+```
+
+</details>
+
+### Paizaの復習課題
 
 [新・Python入門編18：関数を学習しよう](https://paiza.jp/works/python/new-primer/python-new-primer-18)
 
-- chapter 1 : 関数とはなにか
+**今回の復習課題**
 
-- chapter 2 : 関数の書き方
-
-- chapter 3 : 関数を定義
-
-- chapter 5 : 関数を呼び出す場所
-
-- chapter 7 : 返り値を書かなかったとき
-
-- chapter 8 : 関数の処理を強制的に終了(return)
-
-このレッスンのうち、**関数の定義・呼び出し・引数・戻り値**に関するチャプターを演習対象とします。
+- Chapter 1：関数とはなにか
+- Chapter 2：関数の書き方
+- Chapter 3：関数を定義
+- Chapter 5：関数を呼び出す場所
+- Chapter 7：返り値を書かなかったとき
+- Chapter 8：関数の処理を強制的に終了(return)
 
 ---
 
-## 5. 総合演習：観測データを判定するプログラム
+## 5. 総合演習：`survey`の満足度を判定する
 
-ここまでの `if`・`for`・関数を組み合わせて、複数の水温観測値を判定するプログラムを作ります。
-
-まず、1つの水温を判定する関数を作ります。
+Part 1と同じ列指向の辞書`survey`を用い、`if`・`for`・関数を組み合わせます。
 
 ```python
-def check_temperature(temp):
-    if temp >= 20:
-        return "20℃以上"
+survey = {
+    "products": ["商品A", "商品B", "商品C"],
+    "scores": [
+        [4, 5, 3, 4, 5],
+        [3, 4, 4, 5, 4],
+        [5, 3, 4, 3, 4],
+    ],
+}
+```
+
+1件の満足度を判定する関数を定義します。
+
+```python
+def classify_score(score):
+    if score >= 4:
+        return "高評価（4点以上）"
     else:
-        return "20℃未満"
+        return "4点未満"
 ```
 
-次に、複数の観測値を順番に調べる関数を作ります。
+1商品分の満足度リストを順番に表示・判定する関数を定義します。
 
 ```python
-def main_process():
-    water_temps = [18, 22, 25, 16]
+def show_scores_for_product(product_index):
+    product = survey["products"][product_index]
+    scores = survey["scores"][product_index]
 
-    for temp in water_temps:
-        result = check_temperature(temp)
-        print(temp, "℃：", result)
+    print(product)
+    for score in scores:
+        label = classify_score(score)
+        print(score, "点：", label)
 ```
 
-最後に、メイン処理を呼び出します。
+商品A（インデックス`0`）について呼び出します。
 
 ```python
-main_process()
+show_scores_for_product(0)
 ```
 
-**出力例**
+実行結果（例）：
 
 ```text
-18 ℃： 20℃未満
-22 ℃： 20℃以上
-25 ℃： 20℃以上
-16 ℃： 20℃未満
+商品A
+4 点： 高評価（4点以上）
+5 点： 高評価（4点以上）
+3 点： 4点未満
+4 点： 高評価（4点以上）
+5 点： 高評価（4点以上）
 ```
 
-このプログラムは、以下の処理に分けられています。
+このプログラムは、次の処理に分けられます。
 
-1. 観測データを用意する（変数とリスト）
-2. 観測データを1つずつ取り出す（for）
-3. 20℃以上か判定する（if）
-4. 判定方法を関数にまとめる（def・return）
-5. 結果を画面に表示する（print）
+1. Part 1の`survey`から商品名と満足度リストを取り出す（辞書とリスト）
+2. 各回答を1件ずつ取り出す（`for`）
+3. 4点以上かどうか判定する（`if`）
+4. 判定方法を関数にまとめる（`def`・`return`）
+5. 結果を画面に表示する（`print`）
 
-> **注意**：ここでの「20℃以上」は文法練習のために設定した仮の条件です。特定の生物の適水温や漁獲条件を表すものではありません。
+ここでの「4点以上を高評価とする」条件は、文法練習のための仮の基準です。実際の調査では、研究目的に応じて閾値や区分を設計してください。
 
-### 最後の課題
+### 演習4：自分で書いてみよう
 
-- `water_temps` に新しい観測値を2個追加してみましょう。
-- 判定する水温を `20` ℃から `23` ℃に変更してみましょう。
-- 余裕があれば、`check_temperature()` が `15℃未満`、`15℃以上25℃未満`、`25℃以上` の3区分を返すように変更しましょう。
+Google Colabで、上記の`survey`と`classify_score`・`show_scores_for_product`を定義したうえで、次の手順に従ってコードを入力・実行してください。
+
+1. 商品B（インデックス`1`）について`show_scores_for_product(1)`を実行する。
+2. `classify_score`の閾値を`4`から`3`に変更し（3点以上を「高評価」）、商品Aの表示を再度実行する。
+3. 余裕があれば、`classify_score`が「2点以下」「3点」「4点以上」の3区分を`return`するように変更し、商品Cの結果を表示する。
+
+<details>
+<summary>解答例・実行結果（クリックして確認）</summary>
+
+**解答例（1のみ）**
+
+```python
+survey = {
+    "products": ["商品A", "商品B", "商品C"],
+    "scores": [
+        [4, 5, 3, 4, 5],
+        [3, 4, 4, 5, 4],
+        [5, 3, 4, 3, 4],
+    ],
+}
+
+def classify_score(score):
+    if score >= 4:
+        return "高評価（4点以上）"
+    else:
+        return "4点未満"
+
+def show_scores_for_product(product_index):
+    product = survey["products"][product_index]
+    scores = survey["scores"][product_index]
+    print(product)
+    for score in scores:
+        label = classify_score(score)
+        print(score, "点：", label)
+
+show_scores_for_product(1)
+```
+
+</details>
 
 ---
 
-## まとめ
+## 6. まとめ
+
+今回のゼミでは、アンケートデータの集計・判定の流れで、制御構文と関数の基本を学びました。
 
 | 学んだこと | 役割 | 代表的な書き方 |
-| --- | --- | --- |
-| 変数 | データに名前を付けて保存する | `temp = 22` |
-| if文 | 条件によって処理を分ける | `if temp >= 20:` |
-| for文 | データを順番に処理する | `for temp in water_temps:` |
-| 関数 | 処理をまとめ、繰り返し利用する | `def check_temperature(temp):` |
+|---|---|---|
+| 変数 | 回答者数や購入希望率などに名前を付けて再利用する | `purchase_rate = want_to_buy / respondents * 100` |
+| if文 | 満足度などの条件によって処理を分ける | `if score >= 4:` |
+| for文 | 満足度リストを順番に処理する | `for score in scores:` |
+| 関数 | 判定や計算をまとめ、繰り返し利用する | `def classify_score(score):` |
 
-研究でデータを扱う際にも、**データを用意する → 繰り返し処理する → 条件を判定する → 関数にまとめる**という考え方が役立ちます。
+Part 1の`survey`のように表形式のデータを用意し、**取り出す → 繰り返す → 条件で分ける → 関数にまとめる**という流れは、研究データを扱うときにも同型です。
 
-最初からすべて暗記する必要はありません。コードを実行し、少し変更し、結果を確かめることから始めましょう。
+最初からすべて暗記する必要はありません。コードを実行し、数値や条件を少し変更し、結果を確かめることから始めてください。
 
-## 参考・演習リンク
+---
 
-- [paizaラーニング：新・Python入門編](https://paiza.jp/works/python/new-primer)
-- [第4回：変数](https://paiza.jp/works/python/new-primer/python-new-primer-4)
-- [第10回：条件分岐](https://paiza.jp/works/python/new-primer/python-new-primer-10)
-- [第13回：for文](https://paiza.jp/works/python/new-primer/python-new-primer-13)
-- [第18回：関数](https://paiza.jp/works/python/new-primer/python-new-primer-18)
+## ゼミ後の課題
 
-※ paizaの一部動画・演習には会員登録または有料プランが必要な場合があります。実習前に利用できる範囲を確認してください。
+Paizaラーニング「新・Python入門編」の以下の講座に取り組んでください。
+
+### 1. 変数（復習）
+
+[新・Python入門編4：変数を学習しよう](https://paiza.jp/works/python/new-primer/python-new-primer-4)
+
+対象：Chapter 1〜3
+
+### 2. 条件分岐
+
+[新・Python入門編10：条件分岐を学習しよう](https://paiza.jp/works/python/new-primer/python-new-primer-10)
+
+対象：Chapter 1〜5、7
+
+### 3. for文
+
+[新・Python入門編13：for文を学習しよう](https://paiza.jp/works/python/new-primer/python-new-primer-13)
+
+対象：Chapter 1〜3、10
+
+### 4. 関数
+
+[新・Python入門編18：関数を学習しよう](https://paiza.jp/works/python/new-primer/python-new-primer-18)
+
+対象：Chapter 1〜3、5、7、8
+
+今回扱わなかった内容についても、必要に応じて学習してみてください。
