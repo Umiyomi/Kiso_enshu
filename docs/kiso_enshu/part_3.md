@@ -10,7 +10,7 @@ Part 1では辞書とリストで表形式のデータを組み立て、Part 2�
 
 - **`pandas`のDataFrame**を使い、行と列のある表としてデータを扱える。
 - **`pd.read_csv()`** を使い、CSVファイルを読み込める。
-- 列の取り出しや平均など、**表の集計**ができる。
+- 列の取り出し、条件による絞り込み、**並べ替え（ソート）** ができる。
 - **`matplotlib`の散布図（`scatter`）** を使い、2つの数値の関係を確認できる。
 - 読み込み → 集計 → 可視化を、**一連の手順**として実行できる。
 
@@ -56,11 +56,11 @@ plt.show()
 
 ```text
    respondent_id product  age  satisfaction
-0              1     商品A   22             3
-1              2     商品A   43             3
-2              3     商品A   21             3
-3              4     商品A   37             3
-4              5     商品A   41             4
+0             15     商品C   18             2
+1              1     商品A   22             3
+2              8     商品B   41             5
+3             16     商品C   29             2
+4              3     商品A   21             3
 ```
 
 その下に、横軸が年齢、縦軸が満足度の散布図が表示されます。点が右上がりに並んでいれば、年齢が高いほど満足度が高い傾向がある、と読みます。
@@ -167,12 +167,12 @@ CSVは、値をカンマ（`,`）で区切ったテキストファイルです�
 
 ```text
 respondent_id,product,age,satisfaction
+15,商品C,18,2
 1,商品A,22,3
-2,商品A,43,3
-3,商品A,21,3
+8,商品B,41,5
 ```
 
-1行目が列名、2行目以降が回答です。回答は20件で、各行に回答者番号・商品・年齢・満足度が入っています。進め方でアップロード済みであれば、このまま読み込めます。まだの場合は、先に`survey_responses.csv`をColabへアップロードしてください。
+1行目が列名、2行目以降が回答です。回答は20件で、各行に回答者番号・商品・年齢・満足度が入っています。商品の順には並んでいないため、後で並べ替えます。進め方でアップロード済みであれば、このまま読み込めます。まだの場合は、先に`survey_responses.csv`をColabへアップロードしてください。
 
 ### 使い方
 
@@ -189,11 +189,11 @@ print(df.shape)
 
 ```text
    respondent_id product  age  satisfaction
-0              1     商品A   22             3
-1              2     商品A   43             3
-2              3     商品A   21             3
-3              4     商品A   37             3
-4              5     商品A   41             4
+0             15     商品C   18             2
+1              1     商品A   22             3
+2              8     商品B   41             5
+3             16     商品C   29             2
+4              3     商品A   21             3
 (20, 4)
 ```
 
@@ -231,14 +231,14 @@ print(df_a["satisfaction"].mean())
 実行結果：
 
 ```text
-   respondent_id product  age  satisfaction
-0              1     商品A   22             3
-1              2     商品A   43             3
-2              3     商品A   21             3
-3              4     商品A   37             3
-4              5     商品A   41             4
-5              6     商品A   46             4
-6              7     商品A   32             3
+    respondent_id product  age  satisfaction
+1               1     商品A   22             3
+4               3     商品A   21             3
+7               5     商品A   41             4
+9               2     商品A   43             3
+12              6     商品A   46             4
+15              4     商品A   37             3
+18              7     商品A   32             3
 3.2857142857142856
 ```
 
@@ -255,20 +255,68 @@ print(df_older["satisfaction"].mean())
 
 ```text
     respondent_id product  age  satisfaction
-1               2     商品A   43             3
-3               4     商品A   37             3
-4               5     商品A   41             4
-5               6     商品A   46             4
-6               7     商品A   32             3
-7               8     商品B   41             5
-9              10     商品B   43             3
-10             11     商品B   44             5
-17             18     商品C   37             4
-19             20     商品C   42             4
+2               8     商品B   41             5
+7               5     商品A   41             4
+9               2     商品A   43             3
+10             18     商品C   37             4
+11             10     商品B   43             3
+12              6     商品A   46             4
+15              4     商品A   37             3
+16             20     商品C   42             4
+17             11     商品B   44             5
+18              7     商品A   32             3
 3.8
 ```
 
 条件を変えるときは、`==`や`>=`の左の列名と、右の値を書き換えます。30歳以上に限ると、全体平均`3.0`より満足度の平均が高くなります。
+
+読み込んだ直後の表は、回答が入力された順のままです。商品ごとにまとめて見たい場合は、`sort_values()`で並べ替えます。
+
+```python
+df_sorted = df.sort_values("product")
+
+print(df_sorted)
+```
+
+実行結果：
+
+```text
+    respondent_id product  age  satisfaction
+9               2     商品A   43             3
+1               1     商品A   22             3
+15              4     商品A   37             3
+4               3     商品A   21             3
+12              6     商品A   46             4
+7               5     商品A   41             4
+18              7     商品A   32             3
+17             11     商品B   44             5
+14             13     商品B   22             2
+11             10     商品B   43             3
+19             14     商品B   25             3
+8              12     商品B   26             2
+5               9     商品B   26             1
+2               8     商品B   41             5
+6              17     商品C   24             1
+13             19     商品C   23             3
+3              16     商品C   29             2
+16             20     商品C   42             4
+10             18     商品C   37             4
+0              15     商品C   18             2
+```
+
+商品A、商品B、商品Cの順にまとまります。左端の番号は元の行の位置です。`sort_values()`は新しい表を返すため、`df`そのものは変わりません。並べ替えた結果をあとで使うときは、`df_sorted`のように別の変数へ代入します。
+
+### Paizaの復習課題
+
+[Pythonデータ分析入門編3：DataFrameの基本](https://paiza.jp/works/python-data-analysis/primer/python-data-analysis-3)
+
+今回の内容に対応するChapterは以下の通りです。
+
+- Chapter 1：DataFrameの作成
+- Chapter 6：フィルタリング
+- Chapter 7：ソート
+
+**上記3チャプターを復習課題とします。**
 
 ---
 
@@ -306,6 +354,18 @@ plt.show()
 
 相関係数の計算、回帰線、検定はこの段階では扱いません。まずは散布図の見た目で、関係の有無を確認します。
 
+### Paizaの復習課題
+
+[Pythonデータ分析入門編5：データの可視化](https://paiza.jp/works/python-data-analysis/primer/python-data-analysis-5)
+
+今回の内容に対応するChapterは以下の通りです。
+
+- Chapter 1：pandasによるデータの可視化
+- Chapter 2：matplotlibによるデータの可視化1
+- Chapter 3：matplotlibによるデータの可視化2
+
+**上記3チャプターを復習課題とします。**
+
 ---
 
 ## 4. 読み込みから可視化まで
@@ -342,11 +402,11 @@ plt.show()
 
 ```text
    respondent_id product  age  satisfaction
-0              1     商品A   22             3
-1              2     商品A   43             3
-2              3     商品A   21             3
-3              4     商品A   37             3
-4              5     商品A   41             4
+0             15     商品C   18             2
+1              1     商品A   22             3
+2              8     商品B   41             5
+3             16     商品C   29             2
+4              3     商品A   21             3
 (20, 4)
 32.1
 3.0
@@ -366,6 +426,7 @@ plt.show()
 | CSVの読み込み | ファイルに保存された表をプログラムに渡す | `df = pd.read_csv("survey_responses.csv")` |
 | 列の集計 | 平均や件数を列に対して求める | `df["satisfaction"].mean()` |
 | 行の絞り込み | 条件に合う回答だけを取り出す | `df[df["product"] == "商品A"]` |
+| 並べ替え | 指定した列の順に行を並べる | `df.sort_values("product")` |
 | 散布図 | 2つの数値の関係を視覚的に確認する | `plt.scatter(x, y)` |
 
 Part 1の列指向の辞書は、DataFrameと同じ向きのデータです。件数が増えても、列名と条件で取り出せる形にしておくと、集計と可視化にそのままつなげられます。
@@ -382,5 +443,18 @@ Part 1の列指向の辞書は、DataFrameと同じ向きのデータです。�
 
 ## ゼミ後の課題
 
-1. `survey_responses.csv`の年齢または満足度を1件変更して再アップロードし、散布図の並びがどう変わるか確認する。
-2. 余裕があれば、自分で小さなCSV（2つの数値列があるもの）を作り、同じ手順で読み込みと散布図まで行う。
+Paizaラーニング「Pythonデータ分析入門編」の以下の講座に取り組んでください。
+
+### 1. DataFrameの基本
+
+[Pythonデータ分析入門編3：DataFrameの基本](https://paiza.jp/works/python-data-analysis/primer/python-data-analysis-3)
+
+対象：Chapter 1、6、7
+
+### 2. データの可視化
+
+[Pythonデータ分析入門編5：データの可視化](https://paiza.jp/works/python-data-analysis/primer/python-data-analysis-5)
+
+対象：Chapter 1〜3
+
+今回扱わなかった内容についても、必要に応じて学習してみてください。
