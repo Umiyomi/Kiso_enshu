@@ -4,13 +4,14 @@
 
 このページは、基礎演習・データサイエンス入門で使用する教材集です。
 
-Python の基本（変数・リスト・辞書、条件分岐・繰り返し・関数）から、CSV の読み込みと可視化（`pandas`・`matplotlib`）までを、[Google Colab](https://colab.research.google.com/) 上でコードをコピー・実行しながら学びます。テキストは GitHub 上の Markdown を見ながら進めてください。
+Python の基本（変数・リスト・辞書、条件分岐・繰り返し・関数）から、CSV の読み込みと可視化（`pandas`・`matplotlib`）、ターミナルでのフォルダ分けと結果の記録までを学びます。いずれも [Google Colab](https://colab.research.google.com/) 上で進めます。Part 1〜3 はコードセル、Part 4〜5 は Colab のターミナルを使います。テキストは GitHub 上の Markdown を見ながら進めてください。
 
 ## 流れ
 
 - Python入門 (1~2週間) — Part 1・2
-- CLI入門 (1週間)
 - データ処理・可視化入門 (1~2週間) — Part 3
+- CLI入門 (1週間) — Part 4
+- 結果の記録 (1週間) — Part 5
 
 ## 教材
 
@@ -30,14 +31,16 @@ https://colab.research.google.com/
 
 ### テキスト（基礎演習）
 
-GitHub で開き、表示されているコードを Colab のセルにコピーして実行します。
+GitHub で開きます。Part 1〜3 は表示されているコードを Colab のセルにコピーして実行し、Part 4〜5 は Colab のターミナルでコマンドを実行します。
 
 | ファイル | 内容 |
 | --- | --- |
 | [`part_1.md`](./docs/kiso_enshu/part_1.md) | **Part 1** — 変数・`list`・`dict`。Colab で動かしながら、アンケート調査のデータの扱い方の基本を学びます。 |
 | [`part_2.md`](./docs/kiso_enshu/part_2.md) | **Part 2** — `if`・`for`・関数（`def`）。条件分岐・繰り返し・関数の定義と呼び出しを学び、Part 1 の内容と組み合わせて使います。 |
 | [`part_3.md`](./docs/kiso_enshu/part_3.md) | **Part 3** — `pandas`・`matplotlib`。CSV を DataFrame として読み、絞り込み・並べ替えのあと、散布図で2つの数値の関係を確認します。 |
-| [`survey_responses.csv`](./data/survey_responses.csv) | Part 3 で使うアンケートCSV（年齢と満足度）。Colab へアップロードしてから `pd.read_csv()` で読み込みます。 |
+| [`part_4.md`](./docs/kiso_enshu/part_4.md) | **Part 4** — CLI。Colab のターミナルで `survey_project` のフォルダを作り、解析スクリプトを実行して、表示を `outputs/P1/result.txt` に残します。 |
+| [`part_5.md`](./docs/kiso_enshu/part_5.md) | **Part 5** — 設定の分離、`summary.json`、解析IDごとの結果、実行時のスクリプトのコピー、考察と課題の記録。 |
+| [`survey_responses.csv`](./data/survey_responses.csv) | Part 3〜5 で使うアンケートCSV（年齢と満足度）。Part 3 では Colab の `/content` へ、Part 4 では `survey_project/data/` へアップロードします。 |
 
 ---
 
@@ -79,6 +82,7 @@ ColabとDriveの紐付けは`ノートブック`毎に行われます。
 - `ノートブックを新規作成` ボタンをクリック
 - ノートブック画面上部の`Untitled0.ipynb`と書かれた所でファイル名を変更
 - Part 3 では、左のフォルダから `survey_responses.csv` をアップロードする（Drive 上のファイルを使う場合は`ドライブをマウント`する）
+- Part 4以降は、画面左下の`ターミナル`を開き、コマンドを入力する（ランタイムに接続してから開く）
 - 二回目以降のログイン時は`ノートブックを開く`画面で過去に作成した`ノートブック.ipynb`を開く
   ("最近"に無いときは"Googleドライブ"の方を見てみる)
 
@@ -90,12 +94,14 @@ ColabとDriveの紐付けは`ノートブック`毎に行われます。
 .
 ├── README.md
 ├── data
-│   └── survey_responses.csv   # Part 3 用のアンケートCSV
+│   └── survey_responses.csv   # Part 3〜5 用のアンケートCSV
 └── docs
     └── kiso_enshu             # 基礎演習テキスト
         ├── introduction.md
         ├── example.md
         ├── part_1.md
         ├── part_2.md
-        └── part_3.md
+        ├── part_3.md
+        ├── part_4.md
+        └── part_5.md
 ```
