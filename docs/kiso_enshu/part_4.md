@@ -10,7 +10,7 @@ Part 3までは、同じColabのコードセルでコードを実行していま
 
 - **`pwd` / `ls` / `cd` / `mkdir`** を使い、今いる場所の確認、一覧の表示、移動、フォルダ作成ができる。
 - **`python`** でスクリプトを実行できる。実行する場所によって、スクリプトから見えるファイルが変わることを確認できる。
-- **`cat`** と **`>`** を使い、実行結果をファイルに残して中身を表示できる。
+- **`matplotlib.pyplot`** を使い、散布図を PNG 画像ファイルとして保存できる。
 
 ### 進め方
 
@@ -52,7 +52,7 @@ Part 1〜3と同じく、[Google Colab](https://colab.research.google.com/notebo
 mkdir survey_project
 cd survey_project
 mkdir data src analyses docs
-mkdir -p outputs/P1
+mkdir -p outputs/age_analysis
 pwd
 ls
 ```
@@ -70,15 +70,15 @@ Colabのターミナルでは、パスは `/content` から始まります。
 
 ```text
 survey_project/
-├── data/                 ← 生データ
+├── data/                      ← 生データ
 │   └── survey_responses.csv
-├── analyses/             ← 実行するスクリプト
-│   └── P1_age_analysis.py
-├── outputs/              ← 実行結果
-│   └── P1/
-│       └── result.txt
-├── src/                  ← Part 5 で設定ファイルを置く
-└── docs/                 ← Part 5 で仕様と考察を置く
+├── analyses/                  ← 実行するスクリプト
+│   └── age_analysis.py
+├── outputs/                   ← 実行結果
+│   └── age_analysis/
+│       └── age_analysis.png
+├── src/                       ← Part 5 で設定ファイルを置く
+└── docs/                      ← Part 5 で仕様と考察を置く
 ```
 
 | フォルダ | 置くもの |
@@ -89,7 +89,7 @@ survey_project/
 | `src/` | パスや境界条件（Part 5） |
 | `docs/` | 仕様や考察の文章（Part 5） |
 
-`outputs/P1/` の `P1` は、今回の実行結果を入れるフォルダの名前です。別の結果用のフォルダは Part 5 で増やします。
+`outputs/age_analysis/` は、年齢分析（`age_analysis`）の結果を入れるフォルダです。別の解析結果用のフォルダは Part 5 で増やします。
 
 移動できることを確認します。
 
@@ -133,14 +133,38 @@ survey_responses.csv
 
 ### 使い方
 
-`analyses/P1_age_analysis.py` を作成します。Part 3と同じく、年齢30歳で行を分け、件数と平均満足度を表示します。
+ターミナルでファイルを作成します。まず、`analyses/` ディレクトリにファイルを作ります。
+
+```bash
+touch analyses/age_analysis.py
+```
+
+ファイルが作られたことを確認します。
+
+```bash
+ls analyses/
+```
+
+次に、以下のコードをコピーして、テキストエディタで `analyses/age_analysis.py` に貼り付けます。左のフォルダ一覧から `age_analysis.py` をダブルクリックして開き、下のコード全体をコピーして貼り付けてください。
 
 ```python
 import pandas as pd
+import matplotlib.pyplot as plt
 
 df = pd.read_csv("data/survey_responses.csv")
 df_older = df[df["age"] >= 30]
 df_younger = df[df["age"] < 30]
+
+plt.figure(figsize=(8, 6))
+plt.scatter(df_older["age"], df_older["satisfaction"], color="red", label="age >= 30", alpha=0.7)
+plt.scatter(df_younger["age"], df_younger["satisfaction"], color="blue", label="age < 30", alpha=0.7)
+plt.xlabel("Age")
+plt.ylabel("Satisfaction")
+plt.title("Age and Satisfaction (threshold: 30)")
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.savefig("outputs/age_analysis/age_analysis.png", dpi=100, bbox_inches="tight")
+plt.close()
 
 print("count_all", len(df))
 print("mean_all", df["satisfaction"].mean())
@@ -150,11 +174,13 @@ print("count_younger", len(df_younger))
 print("mean_younger", df_younger["satisfaction"].mean())
 ```
 
+ファイルを保存したことを確認します。
+
 `survey_project` にいることを `pwd` で確認してから実行します。
 
 ```bash
 pwd
-python analyses/P1_age_analysis.py
+python analyses/age_analysis.py
 ```
 
 実行結果：
@@ -169,14 +195,14 @@ count_younger 10
 mean_younger 2.2
 ```
 
-30歳以上10件の平均は `3.8`、30歳未満10件の平均は `2.2` です。Part 3で同じ条件を画面に出したときの値と一致します。
+30歳以上10件の平均は `3.8`、30歳未満10件の平均は `2.2` です。Part 3で同じ条件を画面に出したときの値と一致します。同時に、`outputs/age_analysis/age_analysis.png` に散布図が保存されます。
 
 ### 演習1：実行する場所を変えてみる
 
 1. `cd analyses` を実行する。
-2. `python P1_age_analysis.py` を実行する。
+2. `python age_analysis.py` を実行する。
 3. `FileNotFoundError` が出ることを確認する。
-4. `cd ..` で `survey_project` に戻り、`pwd` のあと `python analyses/P1_age_analysis.py` を再実行する。
+4. `cd ..` で `survey_project` に戻り、`pwd` のあと `python analyses/age_analysis.py` を再実行する。
 
 `analyses` にいるときのエラーは、次のような表示です。
 
@@ -190,24 +216,37 @@ FileNotFoundError: [Errno 2] No such file or directory: 'data/survey_responses.c
 
 ### なぜ必要か
 
-`print` の表示は、ターミナルの画面に出るだけです。実行結果は `outputs/P1/` にファイルとして残します。
+スクリプトが散布図を生成するとき、`plt.savefig()` を使うと画像ファイルとして保存できます。解析結果は `outputs/` に画像として残すことで、あとからいつでも確認できます。ファイルの**格納先**と**名付け方**を工夫することで、異なる条件での実行結果を整理・比較しやすくなります。
 
 ### 使い方
 
-`>` は、画面に出る表示を、指定したファイルへ書き込みます。フォルダが無いと失敗するため、`outputs/P1` がある状態で実行します。
+スクリプト内の `plt.savefig("outputs/age_analysis/age_analysis.png")` により、PNG形式の散布図が自動的に保存されます。
+
+```python
+plt.savefig("outputs/age_analysis/age_analysis.png")
+```
+
+ここで指定している **`"outputs/age_analysis/age_analysis.png"`** は、パスとファイル名です。
+
+| 要素 | 意味 |
+|---|---|
+| `outputs/` | スクリプト実行位置（`survey_project`）から見た、実行結果の保存先フォルダ |
+| `age_analysis/` | 解析の種類を示すフォルダ。ここでは年齢分析（`age_analysis`） |
+| `age_analysis.png` | 結果ファイル。解析名と同じ名前でPNG形式の画像 |
+
+フォルダが無いと失敗するため、`outputs/age_analysis` がある状態で実行します。
 
 ```bash
 pwd
-python analyses/P1_age_analysis.py > outputs/P1/result.txt
-ls outputs/P1
-cat outputs/P1/result.txt
+python analyses/age_analysis.py
+ls outputs/age_analysis
 ```
 
 実行結果：
 
 ```text
 /content/survey_project
-result.txt
+age_analysis.png
 count_all 20
 mean_all 3.0
 count_older 10
@@ -216,15 +255,28 @@ count_younger 10
 mean_younger 2.2
 ```
 
-`>` を付けると、実行中は件数が画面に出ません。`cat` でファイルの中身を表示します。同じファイル名でもう一度実行すると、中身は上書きされます。
+スクリプト実行後、`outputs/age_analysis/` に `age_analysis.png` が保存されます。
 
-この `result.txt` には、30歳で分けたことは書かれていません。条件と結果をセットで残す方法は、Part 5 で扱います。
+### ファイル名に情報を残す
+
+同じ条件で複数回実行すると、ファイルは上書きされます。**異なる条件の結果を比較するときは、ファイル名に条件を含める**ことが大切です。
+
+例えば、30歳を境界とした結果なら `age_analysis_threshold_30.png`、40歳を境界とした結果なら `age_analysis_threshold_40.png` のように、**条件が分かるファイル名**にします。
+
+```python
+# 条件を含めた名付け
+plt.savefig("outputs/age_analysis/age_analysis_threshold_30.png")
+```
+
+ファイル名に「何を・どの条件で・どの結果なのか」が分かる情報を入れておくと、あとからファイルを見るだけで、何の実行結果か判断できます。
+
+このスクリプトは `print` で統計量も画面に出すため、数値確認とグラフの両方を活用できます。条件と結果をセットで残す方法は、Part 5 で扱います。
 
 ---
 
 ## 4. まとめ
 
-今回のゼミでは、ターミナルでフォルダを作り、その場所からスクリプトを実行しました。
+今回のゼミでは、ターミナルでフォルダを作り、その場所からスクリプトを実行しました。結果は散布図として画像ファイルに保存されます。
 
 | 学んだこと | 役割 | 代表的なコマンド |
 |---|---|---|
@@ -232,8 +284,8 @@ mean_younger 2.2
 | 一覧 | フォルダの中身を確認する | `ls` |
 | 移動 | データやスクリプトのある場所へ移る | `cd`、`cd ..` |
 | 作成 | 役割ごとのフォルダを作る | `mkdir`、`mkdir -p` |
-| 実行 | `survey_project` からスクリプトを動かす | `python analyses/P1_age_analysis.py` |
-| 結果の保存 | 画面の表示をファイルにして読む | `>`、`cat` |
+| 実行 | `survey_project` からスクリプトを動かす | `python analyses/age_analysis.py` |
+| 結果の保存 | スクリプトから散布図を PNG 画像として保存 | `plt.savefig()`、`ls` で確認 |
 
 スクリプトを実行する前に、`pwd` が `survey_project` で終わることを確認します。
 
@@ -241,23 +293,36 @@ mean_younger 2.2
 
 ## ゼミ後の課題
 
-閾値を変えた結果を、別々のファイルに残してください。
+閾値を変えた散布図を、別々のファイルに残してください。
 
-1. `survey_project` で、次を実行する。
-
-```bash
-python analyses/P1_age_analysis.py > outputs/P1/result_age_30.txt
-```
-
-2. `analyses/P1_age_analysis.py` の `30` を `40` に変える。2か所とも変える。
-3. 次を実行する。
+1. `survey_project` で、現在のスクリプトを実行する。
 
 ```bash
-python analyses/P1_age_analysis.py > outputs/P1/result_age_40.txt
+python analyses/age_analysis.py
 ```
 
-4. `cat outputs/P1/result_age_30.txt` と `cat outputs/P1/result_age_40.txt` で、件数と平均の違いを確認する。
-5. スクリプトの `40` を `30` に戻す。
+2. `outputs/age_analysis/age_analysis.png` が生成されたことを確認する。
+
+```bash
+ls outputs/age_analysis
+```
+
+3. `analyses/age_analysis.py` の `30` をすべて `40` に変える。
+   - `df_older = df[df["age"] >= 30]` を `df_older = df[df["age"] >= 40]` に
+   - `label="age >= 30"` を `label="age >= 40"` に
+   - `title="Age and Satisfaction (threshold: 30)"` を `title="Age and Satisfaction (threshold: 40)"` に
+
+4. `outputs/age_analysis/age_analysis.png` をリネームして保存しておく。左のフォルダ一覧で右クリック → 「名前を変更」で `age_analysis_threshold_30.png` に変更。
+
+5. 編集したスクリプトを実行する。
+
+```bash
+python analyses/age_analysis.py
+```
+
+6. 新しい `age_analysis.png`（40歳で分けた図）と `age_analysis_threshold_30.png` を左のフォルダ一覧で比較する。ダブルクリックでプレビューを開く。
+
+7. スクリプトの `40` をすべて `30` に戻す。
 
 <details>
 <summary>確認用の数値（40歳で分けた場合）</summary>
