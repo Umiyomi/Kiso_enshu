@@ -1,668 +1,412 @@
 # Part 5 結果の記録
 
-# Pythonプログラミング入門：設定・メタデータ・考察をファイルに残す
+# Pythonプログラミング入門：設定を1か所にまとめ、大量の結果を管理する
 
-**設定、実行条件、計算結果、考察を、決まったファイルに残す**流れを学びます。
+**散らばった設定を1か所にまとめ、結果を1つの表に記録し、全体を点検する**流れを学びます。
 
-Part 4では、`survey_project` のフォルダを作り、`analyses/age_analysis.py` を実行して、散布図を `outputs/age_analysis/age_analysis.png` に保存しました。この画像には分析結果が視覚的に表示されていますが、どの条件で生成されたか、どのCSVを読んだかといったメタデータは含まれていません。今回は、その情報を結果と一緒にJSON形式で記録し、複数の条件での分析結果を管理します。
+Part 4では、4つのデータに、4つのスクリプトと、4つのPNGを作りました。基準の値は、スクリプトの中に4か所書かれています。基準を変えるたびに4つのファイルを開き直す必要があります。結果も、どのPNGがどの条件か、ファイル名を見ないと分かりません。
+
+今回は、基準の値を `config.json` にまとめ、結果を `runs.csv` に1行ずつ記録します。そのうえで、全体が正しく揃っているかを確かめます。
 
 ## 今回の目標
 
-- パスと境界条件を **`src/config.py` にまとめ**、解析スクリプトから読み込める。
-- 散布図とともに、実行条件と結果を書いた **複数の `summary.json`** を `outputs/age_analysis/` に保存できる。
-- **`cp` / `mv`** でスクリプトの控えを `archive/` に置き、複数の解析スクリプトを管理できる。
-- 実行したスクリプトと `config.py` を、出力フォルダへコピーして残せる。
-- 仕様（`docs/specification.md`）、考察（`docs/age_analysis_report.md` など）、次に調べること（`docs/issues.md`）を書ける。
+- 基準の値とデータのパスを **`src/config.json` にまとめ**、スクリプトから読み込める。
+- 結果を **`outputs/runs.csv` に1行ずつ追記**し、`cat` や `wc -l` で確認できる。
+- **`>` と `>>`** の違いを使い分けられる。
+- 出力の数が期待どおりかを、`find` と `wc -l` で点検できる。
+- 仕様（`docs/specification.md`）と次の課題（`docs/issues.md`）を書ける。
 
 ### 進め方
 
-Part 4と同じノートブックで、Colabのターミナルを開きます。`cd /content/survey_project` を実行し、`pwd` の表示が `/content/survey_project` になることを確認してから始めてください。ランタイムを再接続してフォルダが消えている場合は、Part 4の手順でもう一度作ってください。
+Part 4と同じノートブックで、Colabのターミナルを開きます。`cd /content/survey_project` を実行し、`pwd` の表示が `/content/survey_project` になることを確認してから始めてください。
 
-ファイルの作成と編集は、Part 4と同じく、左のフォルダ一覧から行います。`matplotlib` は Colab に入っているため、インストールは不要です。
+ランタイムを再接続してフォルダが消えている場合は、Part 4の手順でもう一度作ってください。
+
+ファイルの作成と編集は、Part 4と同じく、左のフォルダ一覧から行います。
 
 ---
 
-## 1. 設定を `src/config.py` にまとめる
+## 1. 設定を `src/config.json` にまとめる
 
 ### なぜ必要か
 
-Part 4のスクリプトには、`"data/survey_responses.csv"` と `30` が直接書いてあります。複数の基準で試すたびに、スクリプトの中の数値を探す必要があります。Part 1で、数値を変数にまとめたのと同じ理由です。
+Part 4の4つのスクリプトには、`DATA_PATH`、`X_COL`、`Y_COL`、`THRESHOLD` がそれぞれ書かれています。基準を3つ試したいときは、4つのファイルを開き、同じ作業を12回繰り返すことになります。
 
-入出力のパスと複数の境界条件は `src/config.py` に書き、解析スクリプトから読み込みます。
+設定を1か所にまとめれば、直すべき場所は1つです。
 
 ### 使い方
 
-ターミナルでファイルを作成します。まず、`src/` ディレクトリにファイルを作ります。
+ターミナルで、`src/` フォルダと設定ファイルを作ります。
 
 ```bash
-touch src/config.py
-```
-
-ファイルが作られたことを確認します。
-
-```bash
-ls src/
-```
-
-次に、以下のコードをコピーして、テキストエディタで `src/config.py` に貼り付けます。左のフォルダ一覧から `config.py` をダブルクリックして開き、下のコード全体をコピーして貼り付けてください。複数のthresholdを**リスト**で管理します。
-
-```python
-RAW_SURVEY_CSV = "data/survey_responses.csv"
-OUTPUT_ROOT = "outputs"
-
-AGE_THRESHOLDS = [30, 35, 40]
-```
-
-`AGE_THRESHOLDS` は、試したい年齢の基準をリストで書きます。スクリプトはこのリストをループして、複数の条件で自動的に分析を行います。
-
-ファイルを保存したことを確認します。
-
-```bash
-cat src/config.py
-```
-
-次に、`analyses/age_analysis.py` を、設定を読んで複数のthresholdで実行する次の内容に書き換えます。ファイルを作成してからコードを貼り付けます。
-
-```bash
-touch analyses/age_analysis.py
-```
-
-テキストエディタで `analyses/age_analysis.py` を開き、以下のコード全体をコピーして貼り付けてください。
-
-```python
-import json
-import os
-import sys
-import pandas as pd
-import matplotlib.pyplot as plt
-
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from src import config
-
-out_dir = f"{config.OUTPUT_ROOT}/age_analysis"
-os.makedirs(out_dir, exist_ok=True)
-
-df = pd.read_csv(config.RAW_SURVEY_CSV)
-
-for threshold in config.AGE_THRESHOLDS:
-    df_older = df[df["age"] >= threshold]
-    df_younger = df[df["age"] < threshold]
-    
-    print(f"threshold {threshold}")
-    print("count_all", len(df))
-    print("mean_all", df["satisfaction"].mean())
-    print("count_older", len(df_older))
-    print("mean_older", df_older["satisfaction"].mean())
-    print("count_younger", len(df_younger))
-    print("mean_younger", df_younger["satisfaction"].mean())
-    print()
-    
-    # 散布図を描き、PNG名にthresholdをsuffixとして付ける
-    plt.figure(figsize=(8, 6))
-    plt.scatter(df_older["age"], df_older["satisfaction"], color="red", label=f"age >= {threshold}", alpha=0.7)
-    plt.scatter(df_younger["age"], df_younger["satisfaction"], color="blue", label=f"age < {threshold}", alpha=0.7)
-    plt.xlabel("Age")
-    plt.ylabel("Satisfaction")
-    plt.title(f"Age and Satisfaction (threshold: {threshold})")
-    plt.legend()
-    plt.grid(True, alpha=0.3)
-    plt.savefig(f"{out_dir}/age_analysis_threshold_{threshold}.png", dpi=100, bbox_inches="tight")
-    plt.close()
-```
-
-スクリプトは `analyses/` の中にあります。`sys.path.append(...)` は、1つ上の `survey_project` を読み込み先に加え、`src/config.py` を `import` できるようにします。`for` ループで、`config.AGE_THRESHOLDS` の各値に対して散布図を生成します。PNG名は `age_analysis_threshold_30.png`、`age_analysis_threshold_35.png`、`age_analysis_threshold_40.png` のように、thresholdをsuffixとして自動的に付けます。
-
-```bash
-pwd
-python analyses/age_analysis.py
-ls outputs/age_analysis
+mkdir src
+touch src/config.json
+ls src
 ```
 
 実行結果：
 
 ```text
-/content/survey_project
-age_analysis_threshold_30.png  age_analysis_threshold_35.png  age_analysis_threshold_40.png
-threshold 30
-count_all 20
-mean_all 3.0
-count_older 10
-mean_older 3.8
-count_younger 10
-mean_younger 2.2
-
-threshold 35
-count_all 20
-mean_all 3.0
-count_older 7
-mean_older 3.857
-count_younger 13
-mean_younger 2.462
-
-threshold 40
-count_all 20
-mean_all 3.0
-count_older 7
-mean_older 4.0
-count_younger 13
-mean_younger 2.462
+config.json
 ```
 
-3つのPNG画像が、それぞれ異なるthresholdで生成されました。ファイル名にthresholdが含まれているため、後から見直すときに、どの条件での結果か判断できます。
-
----
-
-## 2. 実行条件と結果を JSON に残す
-
-### なぜ必要か
-
-複数のthresholdで実行したとき、画像ファイルだけでは、「どの画像がどのthresholdで生成されたか」という条件が分かりにくくなります。
-
-各thresholdの実行条件と結果を、JSON形式でファイルとして保存します。JSONは、Part 1の辞書と同じく、キーと値の組で書けるテキストです。
-
-### 使い方
-
-セクション1のスクリプトを拡張し、複数のthresholdで実行されるたびにJSON結果を記録するようにします。`analyses/age_analysis.py` を更新して、以下のコードで置き換えます。テキストエディタで開いて、下のコード全体をコピーして貼り付けてください。
-
-```python
-import json
-import os
-import sys
-import pandas as pd
-import matplotlib.pyplot as plt
-
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from src import config
-
-out_dir = f"{config.OUTPUT_ROOT}/age_analysis"
-os.makedirs(out_dir, exist_ok=True)
-
-df = pd.read_csv(config.RAW_SURVEY_CSV)
-
-for threshold in config.AGE_THRESHOLDS:
-    df_older = df[df["age"] >= threshold]
-    df_younger = df[df["age"] < threshold]
-    
-    mean_all = float(df["satisfaction"].mean())
-    mean_older = float(df_older["satisfaction"].mean())
-    mean_younger = float(df_younger["satisfaction"].mean())
-    
-    print(f"threshold {threshold}")
-    print("count_all", len(df))
-    print("mean_all", mean_all)
-    print("count_older", len(df_older))
-    print("mean_older", round(mean_older, 3))
-    print("count_younger", len(df_younger))
-    print("mean_younger", round(mean_younger, 3))
-    print()
-    
-    # 散布図を描き、PNG名にthresholdをsuffixとして付ける
-    plt.figure(figsize=(8, 6))
-    plt.scatter(df_older["age"], df_older["satisfaction"], color="red", label=f"age >= {threshold}", alpha=0.7)
-    plt.scatter(df_younger["age"], df_younger["satisfaction"], color="blue", label=f"age < {threshold}", alpha=0.7)
-    plt.xlabel("Age")
-    plt.ylabel("Satisfaction")
-    plt.title(f"Age and Satisfaction (threshold: {threshold})")
-    plt.legend()
-    plt.grid(True, alpha=0.3)
-    plt.savefig(f"{out_dir}/age_analysis_threshold_{threshold}.png", dpi=100, bbox_inches="tight")
-    plt.close()
-    
-    # JSON形式で実行条件と結果を記録
-    summary = {
-        "analysis": "age_analysis",
-        "input_file": config.RAW_SURVEY_CSV,
-        "parameters": {
-            "age_threshold": threshold,
-        },
-        "results": {
-            "total_count": len(df),
-            "older_count": len(df_older),
-            "younger_count": len(df_younger),
-            "mean_satisfaction_all": round(mean_all, 3),
-            "mean_satisfaction_older": round(mean_older, 3),
-            "mean_satisfaction_younger": round(mean_younger, 3),
-        },
-    }
-    
-    # JSONファイル名にもthresholdをsuffixとして付ける
-    json_path = f"{out_dir}/age_analysis_threshold_{threshold}.json"
-    with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(summary, f, indent=2, ensure_ascii=False)
-```
-
-ループの中で、各thresholdについて以下が自動的に行われます。
-
-| 処理 | ファイル名のパターン |
-|---|---|
-| 散布図を描いてPNGで保存 | `age_analysis_threshold_30.png` |
-| JSON形式で条件と結果を記録 | `age_analysis_threshold_30.json` |
-
-`json.dump` は辞書をJSONとして書き出します。`indent=2` は読みやすいように字下げし、`ensure_ascii=False` は日本語を `\u...` にせずそのまま保存します。
-
-```bash
-python analyses/age_analysis.py
-ls outputs/age_analysis
-cat outputs/age_analysis/age_analysis_threshold_30.json
-```
-
-実行結果（ls の部分）：
-
-```text
-outputs/age_analysis
-age_analysis_threshold_30.png   age_analysis_threshold_30.json
-age_analysis_threshold_35.png   age_analysis_threshold_35.json
-age_analysis_threshold_40.png   age_analysis_threshold_40.json
-```
-
-`age_analysis_threshold_30.json` の内容：
+左のフォルダ一覧から `src/config.json` をダブルクリックして開き、次の内容を貼り付けます。
 
 ```json
 {
-  "analysis": "age_analysis",
-  "input_file": "data/survey_responses.csv",
-  "parameters": {
-    "age_threshold": 30
+  "survey": {
+    "data_path": "data/survey_responses.csv",
+    "x_col": "age",
+    "y_col": "satisfaction",
+    "thresholds": [30, 35, 40]
   },
-  "results": {
-    "total_count": 20,
-    "older_count": 10,
-    "younger_count": 10,
-    "mean_satisfaction_all": 3.0,
-    "mean_satisfaction_older": 3.8,
-    "mean_satisfaction_younger": 2.2
+  "shop": {
+    "data_path": "data/shop_sales.csv",
+    "x_col": "temperature",
+    "y_col": "sales",
+    "thresholds": [20, 25, 30]
+  },
+  "fishing": {
+    "data_path": "data/fishing_catch.csv",
+    "x_col": "water_temp",
+    "y_col": "catch_kg",
+    "thresholds": [16, 18, 20]
+  },
+  "study": {
+    "data_path": "data/study_scores.csv",
+    "x_col": "study_hours",
+    "y_col": "score",
+    "thresholds": [2, 3, 4]
   }
 }
 ```
 
-複数のthresholdで実行するたびに、各JSONには対応するthresholdの条件と結果が記録されます。`parameters` が実行時の条件、`results` が計算結果です。PNG と JSON の名前が対応しているため、画像を見るときに、対応する JSON で条件を確認できます。
+JSONは、Part 1の辞書と同じく、`"キー": 値` の組で書きます。`{ }` の中に、データの名前（`survey` など）ごとの設定が並びます。
 
-### 演習1：複数の条件で結果を比較する
+`"thresholds"` は**リスト**です。`[30, 35, 40]` のように、基準を複数書けます。スクリプトはこのリストを1つずつ取り出して、基準ごとに結果を作ります。
 
-1. `python analyses/age_analysis.py` を実行する。
-2. `ls outputs/age_analysis` で、複数のPNG と JSON ファイルが生成されたことを確認する。
-3. `cat outputs/age_analysis/age_analysis_threshold_40.json` で、threshold=40の結果を確認する。
+設定が正しく書けたか確認します。
 
-確認用の数値（threshold=40の場合）：
-
-```json
-"age_threshold": 40
-"older_count": 7
-"younger_count": 13
-"mean_satisfaction_older": 4.0
-"mean_satisfaction_younger": 2.462
+```bash
+cat src/config.json
 ```
 
 ---
 
-## 3. スクリプトの控えを残す
+## 2. スクリプトを設定ファイルから動かす
 
 ### なぜ必要か
 
-スクリプトを書き直す前に、今の版を残しておきたいことがあります。`age_analysis_old.py` や `age_analysis_final.py` を `analyses/` に増やしていくと、どれを実行すればよいか分かりにくくなります。
-
-今のスクリプトは `analyses/` に残し、控えは `analyses/archive/` へ移します。
+スクリプトの中には、もう数字もパスも書きません。`config.json` を読み、その項目を使います。スクリプトに残すのは、**どの項目を読むか**を決める1行だけです。
 
 ### 使い方
 
-| コマンド | 役割 |
-|---|---|
-| `cp コピー元 コピー先` | ファイルを複製する。フォルダごと複製するときは `cp -r` |
-| `mv 移動元 移動先` | ファイルを移動する。名前の変更にも使う |
-
-```bash
-pwd
-mkdir -p analyses/archive
-cp analyses/age_analysis.py analyses/archive/age_analysis_v1.py
-ls analyses
-ls analyses/archive
-```
-
-実行結果：
-
-```text
-/content/survey_project
-age_analysis.py  archive
-age_analysis_v1.py
-```
-
-`cp` のあと、元の `analyses/age_analysis.py` はそのまま残ります。
-
-使わなくなった版を片づけるときも、削除せず `archive/` へ `mv` します。`data/` のCSVと、今実行しているスクリプトは移動しません。
-
----
-
-## 4. `product_analysis` を追加する
-
-### なぜ必要か
-
-`age_analysis` は「年齢と満足度」です。次に「商品ごとの満足度」を調べるとき、`age_analysis.py` に処理を足すと、1つのファイルが2つの異なる問いを担うことになり、メンテナンスが困難になります。
-
-問いごとに解析スクリプトを分け、解析内容を反映したファイル・フォルダ名を使用します。
-
-```text
-analyses/age_analysis.py         outputs/age_analysis/age_analysis_threshold_*.json
-analyses/product_analysis.py     outputs/product_analysis/product_analysis_*.json
-```
-
-さらに、実行の瞬間のスクリプトと `config.py` を出力フォルダへコピーします。あとから設定を書き換えても、そのフォルダを見れば、どのプログラムでその結果が出たかが分かります。
-
-### 使い方
-
-ターミナルで `analyses/product_analysis.py` を作成します。
-
-```bash
-touch analyses/product_analysis.py
-```
-
-テキストエディタで開き、以下のコードをコピーして貼り付けます。商品ごとの件数と平均は、Part 3の絞り込みを商品名の数だけ繰り返して求めます。
+`analyses/survey_scatter.py` を、次のコードで置き換えます。左のフォルダ一覧から開き、中身をすべて消してから貼り付けてください。
 
 ```python
 import json
-import os
-import shutil
-import sys
 import pandas as pd
 import matplotlib.pyplot as plt
 
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from src import config
+NAME = "survey"  # config.json の項目名（データごとに変える）
+with open("src/config.json", encoding="utf-8") as f:
+    config = json.load(f)[NAME]
 
-out_dir = f"{config.OUTPUT_ROOT}/product_analysis"
-os.makedirs(out_dir, exist_ok=True)
+x_col = config["x_col"]
+y_col = config["y_col"]
+df = pd.read_csv(config["data_path"])
 
-shutil.copy(__file__, f"{out_dir}/used_script.py")
-shutil.copy("src/config.py", f"{out_dir}/used_config.py")
+for threshold in config["thresholds"]:
+    high = df[df[x_col] >= threshold]
+    low = df[df[x_col] < threshold]
 
-df = pd.read_csv(config.RAW_SURVEY_CSV)
+    plt.figure(figsize=(8, 6))
+    plt.scatter(high[x_col], high[y_col], color="red", label=f"{x_col} >= {threshold}", alpha=0.7)
+    plt.scatter(low[x_col], low[y_col], color="blue", label=f"{x_col} < {threshold}", alpha=0.7)
+    plt.xlabel(x_col)
+    plt.ylabel(y_col)
+    plt.legend()
+    plt.savefig(f"outputs/{NAME}/{NAME}_scatter_th{threshold}.png", dpi=100, bbox_inches="tight")
+    plt.close()
 
-rows = []
-names = []
-means = []
-for product in ["商品A", "商品B", "商品C"]:
-    part = df[df["product"] == product]
-    mean = round(float(part["satisfaction"].mean()), 3)
-    rows.append({
-        "product": product,
-        "count": len(part),
-        "mean": mean,
-    })
-    names.append(product)
-    means.append(mean)
-
-pd.DataFrame(rows).to_csv(f"{out_dir}/product_analysis.csv", index=False)
-
-plt.bar(names, means)
-plt.xlabel("Product")
-plt.ylabel("Mean Satisfaction")
-plt.title("Product Analysis: Mean Satisfaction by Product")
-plt.savefig(f"{out_dir}/product_analysis_bar.png")
-plt.close()
-
-summary = {
-    "analysis": "product_analysis",
-    "input_file": config.RAW_SURVEY_CSV,
-    "results_by_product": rows,
-}
-
-with open(f"{out_dir}/product_analysis_summary.json", "w", encoding="utf-8") as f:
-    json.dump(summary, f, indent=2, ensure_ascii=False)
-
-print(out_dir)
+    # 結果を runs.csv に1行追記する
+    with open("outputs/runs.csv", "a", encoding="utf-8") as f:
+        f.write(f"{NAME},{threshold},{len(high)},{round(high[y_col].mean(), 3)},{len(low)},{round(low[y_col].mean(), 3)}\n")
 ```
 
-`__file__` は、今実行しているスクリプト自身のパスです。`shutil.copy` は、`cp` と同じ複製を、プログラムの中から行います。`plt.bar` は棒グラフです。軸の日本語が環境によって文字化けすることがあります。数値はCSVとJSONで確認できます。
+書き換えた部分は次のとおりです。
+
+| 行 | 役割 |
+|---|---|
+| `NAME = "survey"` | `config.json` のどの項目を読むか。データごとに変える唯一の行 |
+| `json.load(f)[NAME]` | `config.json` を読み、`NAME` の項目を取り出す |
+| `for threshold in config["thresholds"]:` | 基準のリストを1つずつ取り出して、繰り返す |
+| `open("outputs/runs.csv", "a")` | 結果の表に1行を追記する |
+
+`"a"` は「追記（append）」の指定です。ファイルの末尾に、新しい行を足します。
+
+### 残りの3つを、コピーして作る
+
+Part 4と同じように、`cp` で3つ複製します。
 
 ```bash
-python analyses/product_analysis.py
-ls outputs/product_analysis
-cat outputs/product_analysis/product_analysis_summary.json
+cp analyses/survey_scatter.py analyses/shop_scatter.py
+cp analyses/survey_scatter.py analyses/fishing_scatter.py
+cp analyses/survey_scatter.py analyses/study_scatter.py
+```
+
+コピーした3つを開き、**`NAME` の行だけを**書き換えます。
+
+| ファイル | 書き換える行 |
+|---|---|
+| `shop_scatter.py` | `NAME = "shop"` |
+| `fishing_scatter.py` | `NAME = "fishing"` |
+| `study_scatter.py` | `NAME = "study"` |
+
+---
+
+## 3. 全部を1行で回し、結果を `runs.csv` に記録する
+
+### 使い方
+
+`runs.csv` は、結果を書きためる表です。最初に、列名の行を1行だけ作ります。
+
+```bash
+echo "dataset,threshold,n_high,mean_high,n_low,mean_low" > outputs/runs.csv
+```
+
+`>` は、ファイルを**新しく作って、中身を置き換える**指定です。`>>` は、末尾に**追記する**指定です。今の場合、表を作るのは1回だけなので `>` を使います。
+
+続けて、4つのスクリプトを1行のコマンドで順に実行します。
+
+```bash
+pwd
+for f in analyses/*_scatter.py; do python $f; done
+ls outputs/*
+```
+
+`for f in analyses/*_scatter.py` は、「`analyses/` の中で `_scatter.py` で終わるファイルを、1つずつ `f` に入れて」という意味です。`*` は、任意の文字列に一致する記号です。`do` と `done` の間を、1つずつ実行します。
+
+`ls outputs/*` の結果は次のとおりです（一部を省略）。
+
+```text
+outputs/fishing:
+fishing_scatter_th16.png  fishing_scatter_th18.png  fishing_scatter_th20.png
+outputs/shop:
+shop_scatter_th20.png  shop_scatter_th25.png  shop_scatter_th30.png
+outputs/study:
+study_scatter_th2.png  study_scatter_th3.png  study_scatter_th4.png
+outputs/survey:
+survey_scatter_th30.png  survey_scatter_th35.png  survey_scatter_th40.png
+```
+
+Part 4の4枚が、12枚に増えました。
+
+`runs.csv` の中身を見ます。
+
+```bash
+cat outputs/runs.csv
 ```
 
 実行結果：
 
 ```text
-outputs/product_analysis
-product_analysis_bar.png  product_analysis.csv  product_analysis_summary.json  used_config.py  used_script.py
-{
-  "analysis": "product_analysis",
-  "input_file": "data/survey_responses.csv",
-  "results_by_product": [
-    {
-      "product": "商品A",
-      "count": 7,
-      "mean": 3.286
-    },
-    {
-      "product": "商品B",
-      "count": 7,
-      "mean": 3.0
-    },
-    {
-      "product": "商品C",
-      "count": 6,
-      "mean": 2.667
-    }
-  ]
-}
+dataset,threshold,n_high,mean_high,n_low,mean_low
+survey,30,10,3.8,10,2.2
+survey,35,9,3.889,11,2.273
+survey,40,7,4.0,13,2.462
+shop,20,12,77.75,8,37.5
+shop,25,9,85.889,11,41.818
+shop,30,4,94.5,16,53.438
+fishing,16,14,188.571,6,94.167
+fishing,18,11,210.0,9,99.444
+fishing,20,7,222.143,13,126.923
+study,2,15,69.467,5,42.0
+study,3,12,73.75,8,45.875
+study,4,9,78.0,11,50.0
 ```
 
-`outputs/age_analysis/` と `outputs/product_analysis/` は別フォルダです。異なる解析を実行しても、互いのJSONファイルは上書きされません。
-
-`used_config.py` は、実行した時点の `src/config.py` のコピーです。その後 `src/config.py` を書き換えても、こちらは変わりません。同じ解析を再実行すると、その時点の内容で上書きされます。
-
-```bash
-cat outputs/product_analysis/used_config.py
-```
+1行が、1回の実行に対応します。データ名、基準、基準以上の件数と平均、基準未満の件数と平均が並んでいます。PNGの名前と、この表の行は、データ名と基準で対応しています。
 
 ---
 
-## 5. 仕様・考察・次の課題を書く
+## 4. 全体が正しく揃っているか点検する
 
 ### なぜ必要か
 
-`satisfaction` の `1` と `5` のどちらが高評価かは、JSONを見ても分かりません。列の意味、数値から言えること、次に調べることは、`docs/` に文章で残します。数値の根拠は `summary.json` に置いたままにします。
+複数のデータを扱うと、**「作られるはずのものが揃っているか」**を確認しないと、欠けたまま気づかないことがあります。Part 2の「偽の成功」と同じで、エラーが出なくても、件数が足りないことはあります。
 
 ### 使い方
 
-ターミナルでファイルを作成します。
+点検は、期待する数と、実際の数を比べることから始めます。
+
+| 確認すること | コマンド | 期待する結果 |
+|---|---|---|
+| PNGの枚数 | `find outputs -name "*.png" \| wc -l` | `12` |
+| 表の行数（見出しを含む） | `wc -l outputs/runs.csv` | `13` |
+| 特定のデータの結果 | `grep shop outputs/runs.csv` | `shop` の3行 |
+| 特定の基準の画像 | `ls outputs/*/ \| grep th30` | `survey_scatter_th30.png` など |
+
+`find outputs -name "*.png" | wc -l` の `|` は、左のコマンドの結果を右のコマンドに渡す指定です。`wc -l` は、行数を数えます。
 
 ```bash
-touch docs/specification.md
-touch docs/age_analysis_report.md
-touch docs/product_analysis_report.md
-touch docs/issues.md
+find outputs -name "*.png" | wc -l
+wc -l outputs/runs.csv
+grep shop outputs/runs.csv
 ```
 
-テキストエディタで各ファイルを開き、以下のコードをコピーして貼り付けます。
+実行結果：
+
+```text
+12
+13 outputs/runs.csv
+shop,20,12,77.75,8,37.5
+shop,25,9,85.889,11,41.818
+shop,30,4,94.5,16,53.438
+```
+
+Part 4の課題で、基準を35・28・20・4にして作った画像が残っている場合は、PNGの枚数が12より多くなります。その差が、残っているファイルの数です。**数が合わないときは、どのファイルが余分かを探します。**
+
+### 演習1：同じ実行を2回すると、どうなるか
+
+結果が二重に残ると、どうなるかを確かめます。
+
+1. `cp -r outputs outputs_backup` を実行し、今の `outputs` の控えを作る。
+2. `python analyses/survey_scatter.py` を1回だけ実行する。
+3. `wc -l outputs/runs.csv` を実行する。
+
+`16` になっていれば、アンケートの3行が、もう1回追記されています。`cat outputs/runs.csv` で、`survey` の行が2組あることを確認してください。
+
+4. 表を作り直してから、4つのスクリプトを順に実行し直す。
+
+```bash
+echo "dataset,threshold,n_high,mean_high,n_low,mean_low" > outputs/runs.csv
+for f in analyses/*_scatter.py; do python $f; done
+wc -l outputs/runs.csv
+```
+
+`13` に戻れば、表は揃っています。
+
+`>>` で追記するたびに、同じ実行が重なります。結果を残すときは、**どの実行の行かを確かめ、必要なら表を作り直す**習慣が大切です。
+
+---
+
+## 5. 控えを残し、文章を書く
+
+### なぜ必要か
+
+数字だけでは、データの列の意味や、次に何を調べるかは分かりません。一方で、数字を文章に書き写すと、直したときに食い違います。数字は `runs.csv` を正とし、文章は仕様と課題だけに絞ります。
+
+### 使い方
+
+`cp` と `mv` は、Part 4 の `cp` と同じ要領で使えます。
+
+| コマンド | 役割 |
+|---|---|
+| `cp コピー元 コピー先` | ファイルを複製する。フォルダごとは `cp -r` |
+| `mv 移動元 移動先` | ファイルを移動する。名前の変更にも使う |
+
+今の `outputs_backup` のような控えは、消さずに残します。不要になったら、`mv` で別の場所へ移します。
+
+```bash
+mkdir docs
+touch docs/specification.md
+touch docs/issues.md
+touch README.md
+```
+
+左のフォルダ一覧から各ファイルを開き、次のとおり貼り付けます。
 
 #### docs/specification.md
-
-左のフォルダ一覧から `specification.md` をダブルクリックして開き、以下をコピーして貼り付けてください。
 
 ```markdown
 # データ仕様
 
-## 対象ファイル
+教材用のモックデータです。単位は説明のための仮定です。
 
-- パス: `data/survey_responses.csv`
-- 文字コード: UTF-8
-- 件数: 20行（ヘッダーを除く）
+| ファイル | 内容 | 横軸（X） | 縦軸（Y） | 行数 |
+|---|---|---|---|---|
+| `data/survey_responses.csv` | アンケート | `age`（満年齢） | `satisfaction`（1不満〜5満足） | 20 |
+| `data/shop_sales.csv` | 店舗の日次売上 | `temperature`（気温、℃） | `sales`（売上、千円） | 20 |
+| `data/fishing_catch.csv` | 出漁ごとの漁獲 | `water_temp`（水温、℃） | `catch_kg`（漁獲量、kg） | 20 |
+| `data/study_scores.csv` | 学習時間と得点 | `study_hours`（時間） | `score`（得点） | 20 |
 
-## 列の定義
-
-| 列名 | 意味 | このファイルでの値 |
-|---|---|---|
-| `respondent_id` | 回答者番号 | 1〜20 |
-| `product` | 商品名 | `商品A`、`商品B`、`商品C` |
-| `age` | 満年齢 | 18〜46 |
-| `satisfaction` | 満足度 | 1（不満）〜 5（満足） |
-```
-
-#### docs/age_analysis_report.md
-
-左のフォルダ一覧から `age_analysis_report.md` をダブルクリックして開き、以下をコピーして貼り付けてください。複数のthresholdで実行した結果について、各JSONファイルから数値を取得して書きます。
-
-```markdown
-# 解析レポート：年齢と満足度（age_analysis）
-
-## 条件
-
-- 目的: 異なる年齢基準で満足度に差があるかを見る
-- スクリプト: `analyses/age_analysis.py`
-- 試した基準: `AGE_THRESHOLDS = [30, 35, 40]`（`src/config.py` から）
-- 出力: `outputs/age_analysis/age_analysis_threshold_*.png`、`outputs/age_analysis/age_analysis_threshold_*.json`
-
-## 結果
-
-全体（20件）の平均満足度: 3.0
-
-| 年齢基準 | 基準以上の件数・平均 | 基準未満の件数・平均 |
-|---|---|---|
-| 30歳 | 10件（3.8） | 10件（2.2） |
-| 35歳 | 7件（3.857） | 13件（2.462） |
-| 40歳 | 7件（4.0） | 13件（2.462） |
-
-## 考察
-
-いずれの基準でも、年齢が高い側の平均満足度が低い側より高い傾向がある。基準を上げるほど、高い側の平均が上がる（30歳基準:3.8 → 40歳基準:4.0）。
-
-この差が商品の内訳によるものかは、age_analysisだけでは分からない。商品ごとの平均は、product_analysisの結果と合わせて見る。
-```
-
-#### docs/product_analysis_report.md
-
-左のフォルダ一覧から `product_analysis_report.md` をダブルクリックして開き、以下をコピーして貼り付けてください。
-
-```markdown
-# 解析レポート：商品ごとの満足度（product_analysis）
-
-## 条件
-
-- 目的: 商品ごとの満足度の平均を比べる
-- スクリプト: `analyses/product_analysis.py`
-- 出力: `outputs/product_analysis/product_analysis_bar.png`、`outputs/product_analysis/product_analysis_summary.json`
-
-## 結果
-
-全体（20件）の平均満足度: 3.0
-
-| 商品 | 件数 | 平均満足度 |
-|---|---|---|
-| 商品A | 7 | 3.286 |
-| 商品B | 7 | 3.0 |
-| 商品C | 6 | 2.667 |
-
-## 考察
-
-商品Aの平均満足度が最も高く、商品Cが最も低い。ただし、各商品の回答者の年齢分布が異なる可能性があるため、age_analysisの結果と合わせて解釈する必要がある。
+基準（`thresholds`）は `src/config.json` に書きます。数値の結果は `outputs/runs.csv` を参照してください。
 ```
 
 #### docs/issues.md
 
-左のフォルダ一覧から `issues.md` をダブルクリックして開き、以下をコピーして貼り付けてください。調べることの一覧にします。終わったものと、まだのものを分けて書きます。
-
 ```markdown
 # 調べること
 
-- [Issue-1] 完了: 年齢基準を変えて満足度を比べる（age_analysis）
-- [Issue-2] 完了: 商品ごとの平均満足度を比べる（product_analysis）
-- [Issue-3] 未着手: 商品ごとに、回答者の年齢分布を確認する（age_product_analysis）
+- [Issue-1] 完了: アンケートで、年齢の基準を30・35・40に変えて満足度を比べる
+- [Issue-2] 完了: 店舗の売上を、気温の基準を変えて比べる
+- [Issue-3] 未着手: 漁獲は、水温の基準を何度にすると差がはっきりするかを決める
 ```
 
 #### README.md
 
-ターミナルで `README.md` を作成します。
-
-```bash
-touch README.md
-```
-
-左のフォルダ一覧から `README.md` をダブルクリックして開き、以下をコピーして貼り付けてください。フォルダの役割と実行コマンドを書きます。
-
 ````markdown
-# アンケート満足度の集計（survey_project）
+# 複数データの散布図（survey_project）
 
 ## フォルダ
 
 - `data/`: 生データ（編集しない）
-- `src/`: パスと境界条件（`config.py`）
-- `analyses/`: 解析スクリプト
-- `outputs/`: 解析結果（PNG、JSON、CSV）
-- `docs/`: データ仕様、考察、次に調べること
+- `src/config.json`: データのパスと、基準の値
+- `analyses/`: 解析スクリプト（データごとに1つ）
+- `outputs/`: 結果（PNG と `runs.csv`）
+- `docs/`: データ仕様と、次に調べること
 
 ## 実行方法
 
 `survey_project` で実行する。
 
 ```bash
-python analyses/age_analysis.py
-python analyses/product_analysis.py
+for f in analyses/*_scatter.py; do python $f; done
 ```
 ````
 
-各レポートは `docs/age_analysis_report.md` や `docs/product_analysis_report.md` で確認できます。すべてのレポートは同じ見出し（条件・結果・考察）で書かれ、一貫性があります。
+`README.md` は、フォルダの役割と実行方法を書いておくファイルです。あとから見る人が、最初に読みます。
 
 ---
 
 ## 6. まとめ
 
-今回のゼミでは、Part 4のフォルダの中に、設定と結果と考察を残しました。複数の条件で自動的に分析を行い、各条件の結果を対応するファイルに記録することで、比較と検証が容易になります。
+今回のゼミでは、Part 4の4つのデータに対する解析を、設定と記録と点検で管理しました。
 
-| 学んだこと | 役割 | 今回作ったもの |
+| 学んだこと | 役割 | 今回使ったもの |
 |---|---|---|
-| 設定の分離 | パスと複数の境界条件を1か所で管理 | `src/config.py`（`AGE_THRESHOLDS = [30, 35, 40]`） |
-| ループによる自動処理 | 複数条件で自動的に分析を繰り返す | `for threshold in config.AGE_THRESHOLDS:` |
-| ファイル名の自動生成 | 条件を含めてファイル名を生成 | `age_analysis_threshold_{threshold}.png`、`age_analysis_threshold_{threshold}.json` |
-| 実行記録 | 各条件での結果をJSON形式で記録 | `outputs/age_analysis/age_analysis_threshold_*.json` |
-| 控え | 今のスクリプトを残して、古い版を移す | `cp`、`mv`、`analyses/archive/` |
-| 解析の分離 | 問いごとにコードと出力を分ける | `age_analysis/`、`product_analysis/` |
-| 実行時のコピー | 結果を出したプログラムと設定を残す | `used_script.py`、`used_config.py` |
-| 文章 | 列の意味、考察、次に調べることを残す | `docs/specification.md`、`docs/age_analysis_report.md`、`docs/product_analysis_report.md`、`docs/issues.md` |
+| 設定の集約 | 基準とパスを1か所で管理する | `src/config.json` |
+| 設定の読み込み | スクリプトは設定を読むだけにする | `json.load`、`NAME` |
+| 一括実行 | 全データを1行で回す | `for f in analyses/*_scatter.py; do python $f; done` |
+| 結果の記録 | 実行ごとに1行を表に残す | `outputs/runs.csv`、`>`、`>>` |
+| 点検 | 期待する数と実際の数を比べる | `find`、`wc -l`、`grep` |
+| 控え | 変える前の状態を残す | `cp -r`、`mv` |
+| 文章 | 数字ではなく、意味と課題を残す | `docs/specification.md`、`docs/issues.md`、`README.md` |
 
 結果を見返すときは、次の順でファイルを開きます。
 
-- 元データは `data/`
-- 試した条件は `src/config.py` の `AGE_THRESHOLDS`
-- 各thresholdでの条件と数値は `outputs/age_analysis/age_analysis_threshold_*.json` の `parameters` と `results`
-- 複数条件の比較結果は `docs/` のレポート
+- 元データは `data/`。
+- 試した条件は `src/config.json`。
+- 結果の数値は `outputs/runs.csv`。
+- 画像は `outputs/データ名/`。
+- 列の意味と次の課題は `docs/`。
 
 ---
 
 ## ゼミ後の課題
 
-`age_product_analysis` を追加し、商品ごとに「平均年齢」と「満足度が基準以上の人数」を、`age_product_analysis_summary.json` に残してください。
+5つ目のデータを追加してください。
 
-1. `src/config.py` に `PASS_SATISFACTION = 4` を追加する。4以上を、人数を数える基準にします。
-2. `survey_project` で次を実行し、product_analysisのスクリプトを複製する。
+1. 自分で作った、または教材で用意した CSV（列は `id` と、X、Y の2列以上）を `data/` に置く。
+2. `src/config.json` に、新しい項目を1つ足す。`data_path`、`x_col`、`y_col`、`thresholds` を書く。
+3. `cp analyses/survey_scatter.py analyses/新しい名前_scatter.py` で複製し、`NAME` の行だけを書き換える。
+4. 全体のループを、もう1回だけ実行する。ループの1行は変えずに、新しいスクリプトも回るか確かめる。
 
-```bash
-cp analyses/product_analysis.py analyses/age_product_analysis.py
-```
+確認項目は次のとおりです。
 
-3. テキストエディタで `age_product_analysis.py` を開き、商品ごとの繰り返しの中で、平均年齢と、満足度が `config.PASS_SATISFACTION` 以上の人数を求める。CSV、棒グラフ、`age_product_analysis_summary.json`、実行時のコピーが `outputs/age_product_analysis/` に出るようにする。
-4. ターミナルで `docs/age_product_analysis_report.md` を作成する。
-   
-   ```bash
-   touch docs/age_product_analysis_report.md
-   ```
-   
-   テキストエディタで開き、`age_product_analysis_summary.json` の数値を使ってレポートを書く。見出しは他のレポートと同じく、条件・結果・考察とする。
-5. ターミナルで `docs/issues.md` を開き、`[Issue-3]` を「完了」に変え、まだ分からなかったことを `[Issue-4]` として1つ足す。
+- 新しい設定と、新しいスクリプトを足しただけで済んだか。
+- `runs.csv` に、新しいデータの行が増えたか。
+- `docs/issues.md` の `[Issue-3]` を完了に変え、分からなかったことを `[Issue-4]` として1つ足したか。
 
-人数は、Part 3と同じ絞り込みで数えられます。
-
-```python
-high = part[part["satisfaction"] >= config.PASS_SATISFACTION]
-```
-
-<details>
-<summary>確認用の数値（クリックして確認）</summary>
-
-| 商品 | 平均年齢 | 満足度4以上の人数 |
-|---|---|---|
-| 商品A | 34.571 | 2 |
-| 商品B | 32.429 | 2 |
-| 商品C | 28.833 | 2 |
-
-</details>
+5つ目を足すとき、どこを直したかを数えてください。直すべき行数が少ないほど、設定を1か所にまとめた効果が出ています。
