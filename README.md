@@ -4,7 +4,7 @@
 
 このページは、基礎演習・データサイエンス入門で使用する教材集です。
 
-Python の基本（変数・リスト・辞書、条件分岐・繰り返し・関数）から、CSV の読み込みと可視化（`pandas`・`matplotlib`）、ターミナルでのフォルダ分けと結果の記録までを学びます。いずれも [Google Colab](https://colab.research.google.com/) 上で進めます。Part 1〜3 はコードセル、Part 4〜5 は Colab のターミナルを使います。テキストは GitHub 上の Markdown を見ながら進めてください。
+Python の基本（変数・リスト・辞書、条件分岐・繰り返し・関数）から、CSV の読み込みと可視化（`pandas`・`matplotlib`）、ターミナルでのフォルダ分けと結果の記録までを学びます。いずれも [Google Colab](https://colab.research.google.com/) 上で進めます。Part 1〜3 はコードセル、Part 4〜5 は Colab のターミナルを使います。テキストは本ページの[docs](./docs/)を見ながら進めてください。
 
 ## 流れ
 
@@ -15,9 +15,10 @@ Python の基本（変数・リスト・辞書、条件分岐・繰り返し・�
 
 ## 教材
 
-- 本リポジトリ（`docs/kiso_enshu/`、`data/`）
+- 本リポジトリ（`docs/`、`data/`）
 - [paiza Python新入門編](https://paiza.jp/works/python/new-primer)
 - [paiza Pythonデータ分析入門編](https://paiza.jp/works/python-data-analysis/primer)
+- [paiza Linux シェルコマンド入門編](https://paiza.jp/works/shellcommand/primer)（Part 4 の発展、全チャプター）
 - Google Colab
 
 ---
@@ -35,11 +36,13 @@ GitHub で開きます。Part 1〜3 は表示されているコードを Colab �
 
 | ファイル | 内容 |
 | --- | --- |
-| [`part_1.md`](./docs/kiso_enshu/part_1.md) | **Part 1** — 変数・`list`・`dict`。Colab で動かしながら、アンケート調査のデータの扱い方の基本を学びます。 |
-| [`part_2.md`](./docs/kiso_enshu/part_2.md) | **Part 2** — `if`・`for`・関数（`def`）。条件分岐・繰り返し・関数の定義と呼び出しを学び、Part 1 の内容と組み合わせて使います。 |
-| [`part_3.md`](./docs/kiso_enshu/part_3.md) | **Part 3** — `pandas`・`matplotlib`。CSV を DataFrame として読み、絞り込み・並べ替えのあと、散布図で2つの数値の関係を確認します。 |
-| [`part_4.md`](./docs/kiso_enshu/part_4.md) | **Part 4** — CLI。Colab のターミナルで `survey_project` のフォルダを作り、4つのデータそれぞれの散布図を、データごとのフォルダに保存します。 |
-| [`part_5.md`](./docs/kiso_enshu/part_5.md) | **Part 5** — 設定を `src/config.json` にまとめ、結果を `outputs/runs.csv` に記録し、出力の数を点検します。仕様と課題を `docs/` に書きます。 |
+| [`part_1.md`](./docs/part_1.md) | **Part 1** — 変数・`list`・`dict`。Colab で動かしながら、アンケート調査のデータの扱い方の基本を学びます。 |
+| [`part_2.md`](./docs/part_2.md) | **Part 2** — `if`・`for`・関数（`def`）。条件分岐・繰り返し・関数の定義と呼び出しを学び、Part 1 の内容と組み合わせて使います。 |
+| [`part_3.md`](./docs/part_3.md) | **Part 3** — `pandas`・`matplotlib`。CSV を DataFrame として読み、絞り込み・並べ替えのあと、散布図で2つの数値の関係を確認します。 |
+| [`part_4.md`](./docs/part_4.md) | **Part 4** — CLI。Colab のターミナルで `survey_project` のフォルダを作り、4つのデータそれぞれの散布図を、データごとのフォルダに保存します。 |
+| [`part_5.md`](./docs/part_5.md) | **Part 5** — 設定を `src/config.json` にまとめ、結果を `outputs/runs.csv` に記録し、出力の数を点検します。仕様と課題を `docs/` に書きます。 |
+| [`introduction.md`](./docs/introduction.md) | **導入** — 研究のためにプログラミングを学ぶ意義と、「プログラミング」と「コーディング」の違い。 |
+| [`example.md`](./docs/example.md) | **例** — 研究データ解析パイプラインの全体像（現場の記録から解析・成果物までの流れ）。 |
 | [`survey_responses.csv`](./data/survey_responses.csv) ほか3つのCSV | Part 3〜5 で使うモックデータ。アンケート、店舗の売上、漁獲、学習時間と得点の4種類です。 |
 | [`data.zip`](./data/data.zip) | Part 4〜5 用に、4つのCSVをまとめたzip。Colab の `/content` にアップロードして `unzip` します。 |
 
@@ -93,16 +96,20 @@ ColabとDriveの紐付けは`ノートブック`毎に行われます。
 
 ```text
 .
+├── .gitignore
 ├── README.md
 ├── data
-│   └── survey_responses.csv   # Part 3〜5 用のアンケートCSV
-└── docs
-    └── kiso_enshu             # 基礎演習テキスト
-        ├── introduction.md
-        ├── example.md
-        ├── part_1.md
-        ├── part_2.md
-        ├── part_3.md
-        ├── part_4.md
-        └── part_5.md
+│   ├── data.zip               # Part 4〜5 用に4つのCSVをまとめたzip
+│   ├── survey_responses.csv   # アンケート（Part 3〜5）
+│   ├── shop_sales.csv         # 店舗の日次売上（Part 4〜5）
+│   ├── fishing_catch.csv      # 出漁ごとの漁獲（Part 4〜5）
+│   └── study_scores.csv       # 学習時間と得点（Part 4〜5）
+└── docs                       # 基礎演習テキスト
+    ├── introduction.md
+    ├── example.md
+    ├── part_1.md
+    ├── part_2.md
+    ├── part_3.md
+    ├── part_4.md
+    └── part_5.md
 ```

@@ -22,7 +22,7 @@ GitHubでこのページを見ながら、コードを[Google Colab](https://col
 
 今回の集計・可視化は、教材のCSVをColabへ**アップロードしてから**読み込む前提で進めます。
 
-1. GitHubの[`data/survey_responses.csv`](../../data/survey_responses.csv)をダウンロードする。
+1. GitHubの[`data/survey_responses.csv`](../data/survey_responses.csv)をダウンロードする。
 2. Colab左のフォルダアイコンから、そのファイルをアップロードする。
 3. ファイル名は`survey_responses.csv`のままにする。
 
